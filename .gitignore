@@ -1,0 +1,7 @@
+*.avi
+*.mp4
+.spyproject
+misc/
+__pycache__/
+tktheme/example.py
+tktheme/README.md
