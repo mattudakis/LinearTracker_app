@@ -1,0 +1,5 @@
+TKinter theme package cloned from https://github.com/rdbende/Azure-ttk-theme 
+
+Additional changed 
+- Added an additional style for a verticle toggle swtich 'Switch_vert'
+- Modified theme mapping for combobox and spin box to remove focus accent
