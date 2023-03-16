@@ -273,14 +273,15 @@ class Tracker_app():
     
        viddims = frame_resized.shape[0:2]
        
-       
+       self.root.rowconfigure( (0,1), weight=1) 
+       self.root.columnconfigure( (0,1), weight=1)  
        
        self.top_frame = ttk.Frame(self.root, height=viddims[0], width = 1200)
-       self.top_frame.pack(anchor='nw', padx=20, pady=(20,5))
+       self.top_frame.grid(row=0, column=0,sticky = 'nsew',padx=20, pady=(10,5))
        
        
-       self.top_frame.columnconfigure(0, weight=1)
-       self.top_frame.columnconfigure(1, weight=2)
+       self.top_frame.columnconfigure(0, weight=2)
+       self.top_frame.columnconfigure(1, weight=1)
 
        self.top_frame.rowconfigure(0, weight=1)
        
@@ -310,13 +311,25 @@ class Tracker_app():
        self.arduino_frame.grid(row=0, column=1, padx=20, sticky = 's')
        
        
+       # self.bot_frame = ttk.Frame(self.root, height = 500, width = 1200)
+       # self.bot_frame.pack(anchor='sw',padx=20, pady=(5,10))
+       
        self.bot_frame = ttk.Frame(self.root, height = 500, width = 1200)
-       self.bot_frame.pack(anchor='sw',padx=20, pady=(5,10))
+       self.bot_frame.grid(row=1, column=0,sticky = 'nsew',padx=20, pady=(5,10))
+       #
+       
+       self.bot_frame.columnconfigure(0, weight=1)
+       self.bot_frame.columnconfigure(1, weight=1)
+       self.bot_frame.columnconfigure(2, weight=1)
+       self.bot_frame.columnconfigure(3, weight=1)
+        
+       self.bot_frame.rowconfigure(0, weight=1)
+       self.bot_frame.rowconfigure(1, weight=1)
        
        self.experiment_frame = ttk.Labelframe(self.bot_frame, text='Experiment Control', width = 330)
-       self.experiment_frame.grid(row=0, column=3, rowspan=2, pady=(5,10), padx=(20,5), sticky = 'nsew')
+       self.experiment_frame.grid(row=0, column=3, rowspan=2, pady=(5,10), padx=(15,5), sticky = 'nsew')
        
-       self.inscopix_frame = ttk.Labelframe(self.bot_frame, text='Inscopix Control',width = 220)
+       self.inscopix_frame = ttk.Labelframe(self.bot_frame, text='Inscopix Control',width = 300)
        self.inscopix_frame.grid(row=1, column=1, sticky = 'nsew', pady=(10,10), padx=(10,0))
        
        
@@ -327,7 +340,7 @@ class Tracker_app():
        # self.bot_frame.rowconfigure(1, weight=1)
        
        self.tracking_frame = ttk.Labelframe(self.bot_frame,text='Tracking Controls', height = 150, width = 498)
-       self.tracking_frame.grid(row=0, column=0, columnspan=2, pady=5, sticky = 'nw')
+       self.tracking_frame.grid(row=0, column=0, columnspan=2, pady=5, sticky = 'nsew')
        
        
        self.tracking_frame.columnconfigure(0, weight=1)
@@ -341,7 +354,7 @@ class Tracker_app():
        
        self.overlay_position = tk.IntVar(value=0)
        self.overlay_check = ttk.Checkbutton(self.tracking_frame, variable=self.overlay_position, text = 'Overlay Position')
-       self.overlay_check.grid(row=2, column=0, pady=5, sticky='n', padx=(5,0))
+       self.overlay_check.grid(row=2, column=0, pady=5, sticky='ne', padx=(5,20))
        
        self.save_tracking = tk.IntVar(value=0)
        self.save_tracking_check = ttk.Checkbutton(self.tracking_frame, variable=self.save_tracking, text = 'Save Tracking Data', state='selected')
@@ -388,17 +401,30 @@ class Tracker_app():
        
        
        
-       self.aquisition_frame = ttk.Labelframe(self.bot_frame,text='Aquisition Control', height = 140, width = 244)
-       self.aquisition_frame.grid(row=1, column=0, sticky = 'nw', pady=(10,10), padx=(0,5))
+       self.aquisition_frame = ttk.Labelframe(self.bot_frame,text='Aquisition Control', height = 140, width = 150)
+       self.aquisition_frame.grid(row=1, column=0, sticky = 'nsew', pady=(10,10), padx=(0,5))
+       
+       self.aquisition_frame.columnconfigure(0, weight=1)
+       self.aquisition_frame.columnconfigure(1, weight=1)
+       self.aquisition_frame.columnconfigure(2, weight=2)
+       self.aquisition_frame.columnconfigure(3, weight=1)
+       
+       self.aquisition_frame.rowconfigure(0, weight=1)
+       self.aquisition_frame.rowconfigure(1, weight=1)
+       self.aquisition_frame.rowconfigure(2, weight=1)
+       self.tracking_frame.rowconfigure(3, weight=1)
+       
+       
        
        self.stream_button = ttk.Button(self.aquisition_frame,text="Start Stream", command=self.start_stop_stream_button)
-       self.stream_button.grid(row=0, column=0, columnspan=2, padx=(20, 20), pady=(10, 10), ipadx=38, ipady=7)
+       self.stream_button.grid(row=0, column=0, columnspan=2, padx=(50, 50), pady=(10, 10), ipadx=2, ipady=7,sticky='nsew')
       
        self.start_button = ttk.Button(self.aquisition_frame,text="Record", command=self.start_rec_button)
-       self.start_button.grid(row=1, column=0, padx=(30,10), pady=(5,20), ipadx=10, ipady=7,sticky='n')
+       self.start_button.grid(row=1, column=0, padx=(50,10), pady=(5,20), ipadx=1, ipady=7,sticky='nsew')
        
        self.stop_button = ttk.Button(self.aquisition_frame,text="Stop Rec.", command=self.stop_rec_button, state="disabled")
-       self.stop_button.grid(row=1, column=1,padx=(10,30), pady=(5,20), ipadx=10, ipady=7)
+       self.stop_button.grid(row=1, column=1,padx=(10,50), pady=(5,20), ipadx=1, ipady=7,sticky='nsew')
+       
        
        
        self.video_res = tk.StringVar()
