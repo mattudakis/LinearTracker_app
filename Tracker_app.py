@@ -46,7 +46,7 @@ class video_stream():
         vid_h = self.video_resolution[1]
         
         self.capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-        self.capture.set(cv2.CAP_PROP_SETTINGS, 0) #Use this to get camera settings for the webcam. (might include this into a menu option)
+        #self.capture.set(cv2.CAP_PROP_SETTINGS, 0) #Use this to get camera settings for the webcam. (might include this into a menu option)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, vid_w)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, vid_h)
         #self.capture.set(cv2.CAP_PROP_EXPOSURE, -3) # Setting the exposure on logitech cameras is often important as the frame rate drops if exposure is too high.
