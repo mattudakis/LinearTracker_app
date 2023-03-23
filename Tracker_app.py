@@ -13,6 +13,7 @@ from PIL import Image, ImageTk
 from utils.app_classes import Rectangle
 import os 
 import time
+from datetime import datetime
 
 from tkinter import ttk  # Normal Tkinter.* widgets are not themed!
 #from ttkthemes import ThemedTk
@@ -227,6 +228,10 @@ class Tracker_app():
        self.is_streaming = False
        self.ledThreshold = 50
        self.mask_colour = [0,0,255]
+       self.session_running = False
+       self.rest_running = False
+       self.session_start = 0
+       self.session_number = 0
        
        #self.fps_string_var = "text"
        self.display_resolution = [640*1.2, 360*1.2]
@@ -303,7 +308,7 @@ class Tracker_app():
     
        self.zones = [r1, r2, r3]
     
-       self.update_frame() 
+       #self.update_frame() 
        
        
        self.arduino_frame = ttk.Labelframe(self.top_frame,text='Arduino Control', height = 350, width = 250)
@@ -328,6 +333,44 @@ class Tracker_app():
        
        self.experiment_frame = ttk.Labelframe(self.bot_frame, text='Experiment Control', width = 330)
        self.experiment_frame.grid(row=0, column=3, rowspan=2, pady=(5,10), padx=(15,5), sticky = 'nsew')
+       
+       self.experiment_frame.columnconfigure(0, weight=1)
+       self.experiment_frame.columnconfigure(1, weight=1)
+
+       self.experiment_frame.rowconfigure(0, weight=1)
+       self.experiment_frame.rowconfigure(1, weight=1)
+       self.experiment_frame.rowconfigure(2, weight=1)
+       self.experiment_frame.rowconfigure(3, weight=1)
+       
+       
+       self.start_session_button = ttk.Button(self.experiment_frame,text="Start Session", command=self.start_stop_session_button)
+       self.start_session_button.grid(row=0, column=0, padx=(10, 10), pady=(10, 10),  ipady=2,sticky='nsew')
+       
+       self.start_rest_button = ttk.Button(self.experiment_frame,text="Start rest", command=self.start_stop_rest_button)
+       self.start_rest_button.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), ipady=2,sticky='nsew')
+       
+       self.sessions_frame = ttk.Labelframe(self.experiment_frame)
+       self.sessions_frame.grid(row=2, column=0, rowspan=2, sticky = 'nsew', pady=(10,10), padx=(10,0))
+       
+       
+       self.session_number_label = tk.Label(self.sessions_frame,text = "Session number: 0")
+       self.session_number_label.grid(row=0, column=0, sticky = 'nsw', pady=(5,10), padx=(10,10))
+       
+       
+       self.session_time_label = tk.Label(self.sessions_frame,text = "Session Time:")
+       self.session_time_label.grid(row=1, column=0, sticky = 'nsw', pady=(10,10), padx=(10,10))
+       
+       self.lap_num_label = tk.Label(self.sessions_frame,text = "Number of laps:").grid(row=2, column=0, sticky = 'nsw', pady=(10,10), padx=(10,0))
+       
+       self.rest_time_label = tk.Label(self.sessions_frame,text = "Rest Time:")
+       self.rest_time_label.grid(row=3, column=0, sticky = 'nsw', pady=(10,5), padx=(10,10))
+       
+       
+       
+       
+       
+       
+       
        
        self.inscopix_frame = ttk.Labelframe(self.bot_frame, text='Inscopix Control',width = 300)
        self.inscopix_frame.grid(row=1, column=1, sticky = 'nsew', pady=(10,10), padx=(10,0))
@@ -521,7 +564,33 @@ class Tracker_app():
         self.frame_resize_factor = [(camera_resolution[0]/self.display_resolution[0]),(camera_resolution[1]/self.display_resolution[1])]
         
         
+    def start_stop_session_button(self):
+        
+        if self.session_running: 
+        
+            print("stoping_session")
+            self.start_session_button.config(text="Start Session")
+            self.session_running = False
+            self.session_number += 1
+        else:
+            self.session_start = datetime.now()
+            print("starting session")
+            self.start_session_button.config(text="Stop Session")
+            self.session_running = True
+         
     
+    def start_stop_rest_button(self):
+        
+        if self.rest_running: 
+        
+            print("stoping rest")
+            self.start_rest_button.config(text="Start Rest")
+            self.rest_running = False
+        else:
+            self.rest_start = datetime.now()
+            print("starting rest")
+            self.start_rest_button.config(text="Stop Rest")
+            self.rest_running = True
     
     
     def start_stop_stream_button(self):
@@ -581,7 +650,39 @@ class Tracker_app():
         self.stop_button.config(state="disabled")
     
 
+    def update_timers(self):
         
+        if self.session_running:
+            
+            self.session_time = datetime.now() - self.session_start 
+            minutes, seconds = divmod(self.session_time.seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            # Round the microseconds to millis.
+            millis = round(self.session_time.microseconds/1000)
+            
+            if hours > 0:
+                session_time_string = f"Session Time: {hours}:{minutes:02}:{seconds:02}.{millis:03}"
+            else:
+                session_time_string = f"Session Time: {minutes:02}:{seconds:02}.{millis:03}"
+            
+            self.session_time_label['text'] = session_time_string
+            self.session_number_label['text'] = ("Session number: " + str(self.session_number))
+        
+        if self.rest_running:
+            
+            self.rest_time = datetime.now() - self.rest_start 
+            
+            minutes, seconds = divmod(self.rest_time.seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            # Round the microseconds to millis.
+            millis = round(self.rest_time.microseconds/1000)
+            
+            if hours > 0:
+                rest_time_string = f"Rest Time: {hours}:{minutes:02}:{seconds:02}.{millis:03}"
+            else:
+                rest_time_string = f"Rest Time: {minutes:02}:{seconds:02}.{millis:03}"
+            
+            self.rest_time_label['text'] = rest_time_string   
         
         
     def Refresher(self):
@@ -628,10 +729,10 @@ class Tracker_app():
             self.video_canvas.tag_lower('video','all')
             
             
+                    
         
-        
-        
-        
+        self.update_timers()
+
         if self.is_streaming:
             
             self.root.after(10, self.update_frame)
