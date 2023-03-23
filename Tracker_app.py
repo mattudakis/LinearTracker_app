@@ -285,7 +285,7 @@ class Tracker_app():
        self.top_frame.grid(row=0, column=0,sticky = 'nsew',padx=20, pady=(10,5))
        
        
-       self.top_frame.columnconfigure(0, weight=2)
+       self.top_frame.columnconfigure(0, weight=1)
        self.top_frame.columnconfigure(1, weight=1)
 
        self.top_frame.rowconfigure(0, weight=1)
@@ -313,7 +313,7 @@ class Tracker_app():
        
        self.arduino_frame = ttk.Labelframe(self.top_frame,text='Arduino Control', height = 350, width = 250)
        #self.arduino_frame.pack(anchor='ne', fill="both", expand=True)
-       self.arduino_frame.grid(row=0, column=1, padx=20, sticky = 's')
+       self.arduino_frame.grid(row=0, column=1, padx=10, sticky = 'sw')
        
        
        # self.bot_frame = ttk.Frame(self.root, height = 500, width = 1200)
@@ -332,7 +332,7 @@ class Tracker_app():
        self.bot_frame.rowconfigure(1, weight=1)
        
        self.experiment_frame = ttk.Labelframe(self.bot_frame, text='Experiment Control', width = 330)
-       self.experiment_frame.grid(row=0, column=3, rowspan=2, pady=(5,10), padx=(15,5), sticky = 'nsew')
+       self.experiment_frame.grid(row=0, column=2, rowspan=2, pady=(5,10), padx=(15,5), sticky = 'nsew')
        
        self.experiment_frame.columnconfigure(0, weight=1)
        self.experiment_frame.columnconfigure(1, weight=1)
@@ -344,27 +344,36 @@ class Tracker_app():
        
        
        self.start_session_button = ttk.Button(self.experiment_frame,text="Start Session", command=self.start_stop_session_button)
-       self.start_session_button.grid(row=0, column=0, padx=(10, 10), pady=(10, 10),  ipady=2,sticky='nsew')
+       self.start_session_button.grid(row=0, column=0, padx=(40, 40), pady=(20, 10),  ipady=2,sticky='nsew')
        
        self.start_rest_button = ttk.Button(self.experiment_frame,text="Start rest", command=self.start_stop_rest_button)
-       self.start_rest_button.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), ipady=2,sticky='nsew')
+       self.start_rest_button.grid(row=1, column=0, padx=(40, 40), pady=(10, 5), ipady=2,sticky='nsew')
        
-       self.sessions_frame = ttk.Labelframe(self.experiment_frame)
-       self.sessions_frame.grid(row=2, column=0, rowspan=2, sticky = 'nsew', pady=(10,10), padx=(10,0))
+       self.sessions_frame = ttk.Labelframe(self.experiment_frame, width = 200)
+       self.sessions_frame.grid(row=2, column=0, rowspan=2, sticky = 'nsew', pady=(10,10), padx=(10,10))
        
        
        self.session_number_label = tk.Label(self.sessions_frame,text = "Session number: 0")
        self.session_number_label.grid(row=0, column=0, sticky = 'nsw', pady=(5,10), padx=(10,10))
        
-       
-       self.session_time_label = tk.Label(self.sessions_frame,text = "Session Time:")
+       self.session_time_label = tk.Label(self.sessions_frame,text = "Session Time: 00:00:000")
        self.session_time_label.grid(row=1, column=0, sticky = 'nsw', pady=(10,10), padx=(10,10))
        
-       self.lap_num_label = tk.Label(self.sessions_frame,text = "Number of laps:").grid(row=2, column=0, sticky = 'nsw', pady=(10,10), padx=(10,0))
+       self.lap_num_label = tk.Label(self.sessions_frame,text = "Number of laps:")
+       self.lap_num_label.grid(row=2, column=0, sticky = 'nsw', pady=(10,10), padx=(10,0))
        
-       self.rest_time_label = tk.Label(self.sessions_frame,text = "Rest Time:")
+       self.rest_time_label = tk.Label(self.sessions_frame,text = "Rest Time: 00:00:000")
        self.rest_time_label.grid(row=3, column=0, sticky = 'nsw', pady=(10,5), padx=(10,10))
        
+       
+       self.sessions_settings_frame = ttk.Labelframe(self.experiment_frame)
+       self.sessions_settings_frame.grid(row=0, column=1, rowspan=3, sticky = 'nsew', pady=(10,10), padx=(10,20))
+       
+       self.session_length_label = tk.Label(self.sessions_settings_frame,text = "Session Length:")
+       self.session_length_label.grid(row=0, column=0, sticky = 'nsw', pady=(10,10), padx=(10,10))
+       
+       self.session_length_input = ttk.Entry(self.sessions_settings_frame,text = "10", width = 2)
+       self.session_length_input.grid(row=0, column=1, sticky = 'w', pady=(10,10), padx=(10,10))
        
        
        
@@ -382,7 +391,7 @@ class Tracker_app():
        # self.bot_frame.rowconfigure(0, weight=2)
        # self.bot_frame.rowconfigure(1, weight=1)
        
-       self.tracking_frame = ttk.Labelframe(self.bot_frame,text='Tracking Controls', height = 150, width = 498)
+       self.tracking_frame = ttk.Labelframe(self.bot_frame,text='Tracking Controls', height = 150, width = 250)
        self.tracking_frame.grid(row=0, column=0, columnspan=2, pady=5, sticky = 'nsew')
        
        
@@ -397,25 +406,25 @@ class Tracker_app():
        
        self.overlay_position = tk.IntVar(value=0)
        self.overlay_check = ttk.Checkbutton(self.tracking_frame, variable=self.overlay_position, text = 'Overlay Position')
-       self.overlay_check.grid(row=2, column=0, pady=5, sticky='ne', padx=(5,20))
+       self.overlay_check.grid(row=2, column=0, pady=5, sticky='nsew', padx=(10,10))
        
        self.save_tracking = tk.IntVar(value=0)
        self.save_tracking_check = ttk.Checkbutton(self.tracking_frame, variable=self.save_tracking, text = 'Save Tracking Data', state='selected')
-       self.save_tracking_check.grid(row=2, column=1, columnspan=2, sticky='nw', pady=5, padx=(0,10))
+       self.save_tracking_check.grid(row=2, column=1, columnspan=2, sticky='nsew', pady=5, padx=(0,10))
        
      
       
  
        #red_thresh = tk.IntVar()
-       self.thresh_slider = ttk.Scale(self.tracking_frame, length = 200, from_=0, to=100, orient = 'horizontal', command=self.update_ledthresh)
+       self.thresh_slider = ttk.Scale(self.tracking_frame, length = 100, from_=0, to=100, orient = 'horizontal', command=self.update_ledthresh)
        self.thresh_slider.set(self.ledThreshold)
-       self.thresh_slider.grid(row=0, column=0, columnspan=2, sticky='e', padx=(20,0), pady=(15,5))
+       self.thresh_slider.grid(row=0, column=0, columnspan=2, sticky='ew', padx=(20,0), pady=(15,5))
        self.thresh_label = tk.Label(self.tracking_frame,text = "Red Threshold")
        self.thresh_label .grid(row=0, column=2,padx=5, pady=(15,5), sticky='w')
        #self.thresh_label
        
-       self.ledsize_slider = ttk.Scale(self.tracking_frame, length = 200, from_=0, to=100, orient = 'horizontal', command=self.update_ledsize)
-       self.ledsize_slider.grid(row=1, column=0, columnspan=2, sticky='e', padx=(20,0),pady=5)
+       self.ledsize_slider = ttk.Scale(self.tracking_frame, length = 100, from_=0, to=100, orient = 'horizontal', command=self.update_ledsize)
+       self.ledsize_slider.grid(row=1, column=0, columnspan=2, sticky='ew', padx=(20,0),pady=5)
        self.ledsize_label = tk.Label(self.tracking_frame,text = "Red Size")
        self.ledsize_label.grid(row=1, column=2, padx=5, pady=5, sticky='w')
        
@@ -423,16 +432,16 @@ class Tracker_app():
       
        self.colour_to_track = tk.StringVar()
        self.LED_colour_spin = ttk.Spinbox(self.tracking_frame,textvariable=self.colour_to_track,width=12, command=self.Led_to_track)
-       self.LED_colour_spin.grid(row=0, column=3, sticky='ew', pady=(15,5), padx=(15,0))
+       self.LED_colour_spin.grid(row=0, column=3, sticky='ew', pady=(15,5), padx=(5,0))
        self.LED_colour_spin['values'] = ('Red', 'Green', 'Blue')
        self.LED_colour_spin['state'] = 'readonly'
        self.LED_colour_spin.set('Red')
        self.led_label = tk.Label(self.tracking_frame,text = 'Tracking Colour')
-       self.led_label.grid(row=0, column=4, sticky='w', padx=(5,20), pady=(15,5))
+       self.led_label.grid(row=0, column=4, sticky='w', padx=(5,20), pady=(5,5))
        
        self.frame_to_display = tk.StringVar()
        self.frame_cb = ttk.Combobox(self.tracking_frame,textvariable=self.frame_to_display,width=12)
-       self.frame_cb.grid(row=1, column=3, sticky='ew', pady=(5,5), padx=(15,0))
+       self.frame_cb.grid(row=1, column=3, sticky='ew', pady=(5,5), padx=(5,0))
        self.frame_cb['values'] = ('Track', 'LED Mask', 'Crop Track')
        self.frame_cb['state'] = 'readonly'
        self.frame_cb.set('Track')
@@ -440,7 +449,7 @@ class Tracker_app():
        self.frame_label.grid(row=1, column=4, sticky='w', padx=(5,20),pady=5)
        
        self.crop_button = ttk.Button(self.tracking_frame,text="Crop Track",width=10)
-       self.crop_button.grid(row=2, column=3, columnspan=2, padx=(15,20), sticky='sew', pady=(5,20))
+       self.crop_button.grid(row=2, column=3, columnspan=2, padx=(5,20), sticky='sew', pady=(5,20))
        
        
        
@@ -449,8 +458,8 @@ class Tracker_app():
        
        self.aquisition_frame.columnconfigure(0, weight=1)
        self.aquisition_frame.columnconfigure(1, weight=1)
-       self.aquisition_frame.columnconfigure(2, weight=2)
-       self.aquisition_frame.columnconfigure(3, weight=1)
+       #self.aquisition_frame.columnconfigure(2, weight=1)
+       #self.aquisition_frame.columnconfigure(3, weight=1)
        
        self.aquisition_frame.rowconfigure(0, weight=1)
        self.aquisition_frame.rowconfigure(1, weight=1)
@@ -460,13 +469,13 @@ class Tracker_app():
        
        
        self.stream_button = ttk.Button(self.aquisition_frame,text="Start Stream", command=self.start_stop_stream_button)
-       self.stream_button.grid(row=0, column=0, columnspan=2, padx=(50, 50), pady=(10, 10), ipadx=2, ipady=7,sticky='nsew')
+       self.stream_button.grid(row=0, column=0, columnspan=2, padx=(20, 20), pady=(10, 10), ipady=7,sticky='nsew')
       
        self.start_button = ttk.Button(self.aquisition_frame,text="Record", command=self.start_rec_button)
-       self.start_button.grid(row=1, column=0, padx=(50,10), pady=(5,20), ipadx=1, ipady=7,sticky='nsew')
+       self.start_button.grid(row=1, column=0, padx=(20,10), pady=(5,20), ipady=7,sticky='nsew')
        
        self.stop_button = ttk.Button(self.aquisition_frame,text="Stop Rec.", command=self.stop_rec_button, state="disabled")
-       self.stop_button.grid(row=1, column=1,padx=(10,50), pady=(5,20), ipadx=1, ipady=7,sticky='nsew')
+       self.stop_button.grid(row=1, column=1,padx=(10,20), pady=(5,20), ipady=7,sticky='nsew')
        
        
        
@@ -482,7 +491,8 @@ class Tracker_app():
        self.vid_res_cb.bind("<<ComboboxSelected>>",lambda e: self.bot_frame.focus())
        
        self.fps_string_var = tk.StringVar()
-       self.fps_label = tk.Label(self.aquisition_frame,textvariable = self.fps_string_var).grid(row=2, column=0, sticky='w', pady=2, padx=2)
+       self.fps_label = tk.Label(self.aquisition_frame,textvariable = self.fps_string_var)
+       self.fps_label.grid(row=2, column=0, sticky='w', pady=2, padx=2)
        
        self.theme_frame = ttk.Frame(self.bot_frame)
        self.theme_frame.grid(row=1, column=4, sticky = 'sw', pady=(10))
