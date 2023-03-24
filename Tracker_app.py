@@ -224,8 +224,8 @@ class video_stream():
 class Tracker_app():
     def __init__(self,master):
        self.root = master
-       self.root.title("Resizable Rectangles")
-       self.root.geometry('1200x900')
+       self.root.title("LinearTrack_er")
+       
        self.root.protocol("WM_DELETE_WINDOW", self.closeWindow)
        self.is_streaming = False
        self.ledThreshold = 50
@@ -294,7 +294,7 @@ class Tracker_app():
        self.top_frame.rowconfigure(0, weight=1)
        
        self.video_frame = ttk.Frame(self.top_frame, width=viddims[1], height=viddims[0])
-       self.video_frame.grid(row=0, column=0)
+       self.video_frame.grid(row=0, column=0, rowspan=2)
        #self.video_frame.pack(fill="both", expand=True)
        
        
@@ -310,13 +310,26 @@ class Tracker_app():
        r3 = Rectangle(self.video_canvas, 580, 170, 660, 250)
     
        self.zones = [r1, r2, r3]
-    
-       #self.update_frame() 
        
+       
+       logo_img = Image.open("tktheme/theme/trackerlogo.png")
+       logo_img_small = logo_img.resize((220,40))
+       self.logo_imgnew = ImageTk.PhotoImage(logo_img_small)
+       
+       logo_img_dark = Image.open("tktheme/theme/trackerlogo_dark.png")
+       logo_img_dark_small = logo_img_dark.resize((220,40))
+       self.logo_imgnew_dark = ImageTk.PhotoImage(logo_img_dark_small)
+       
+       self.logo_canvas = tk.Canvas(self.top_frame , width= 220, height= 50)
+       self.logo_canvas.logo_img = self.logo_imgnew_dark
+       self.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.logo_imgnew_dark)
+       self.logo_canvas.grid(row=0, column=1, sticky = 'sw', padx=(10),pady=(10))
+        # Create a Label Widget to display the text or Image
+        
        
        self.arduino_frame = ttk.Labelframe(self.top_frame,text='Arduino Control', height = 350, width = 250)
        #self.arduino_frame.pack(anchor='ne', fill="both", expand=True)
-       self.arduino_frame.grid(row=0, column=1, padx=10, sticky = 'sw')
+       self.arduino_frame.grid(row=1, column=1, padx=(10,5), sticky = 'nesw')
        
        
        # self.bot_frame = ttk.Frame(self.root, height = 500, width = 1200)
@@ -329,7 +342,7 @@ class Tracker_app():
        self.bot_frame.columnconfigure(0, weight=1)
        self.bot_frame.columnconfigure(1, weight=1)
        self.bot_frame.columnconfigure(2, weight=1)
-       self.bot_frame.columnconfigure(3, weight=1)
+       #self.bot_frame.columnconfigure(3, weight=1)
         
        self.bot_frame.rowconfigure(0, weight=1)
        self.bot_frame.rowconfigure(1, weight=1)
@@ -565,15 +578,26 @@ class Tracker_app():
        self.fps_label = tk.Label(self.vid_res_frame,textvariable = self.fps_string_var)
        self.fps_label.grid(row=0, column=0, sticky='w', pady=2, padx=2)
        
-       self.theme_frame = ttk.Frame(self.bot_frame)
-       self.theme_frame.grid(row=1, column=4, sticky = 'sw', pady=(10))
-       self.theme_switch = ttk.Checkbutton(self.theme_frame, style='Switch_vert.TCheckbutton', command= self.change_theme)
-       self.dark_label = tk.Label(self.theme_frame,text = 'Dark')
-       self.light_label = tk.Label(self.theme_frame,text = 'Light')
+       # self.theme_frame = ttk.Frame(self.bot_frame)
+       # self.theme_frame.grid(row=1, column=4, sticky = 'sw', pady=(10))
+       # self.theme_switch = ttk.Checkbutton(self.theme_frame, style='Switch_vert.TCheckbutton', command= self.change_theme)
+       # self.dark_label = tk.Label(self.theme_frame,text = 'Dark')
+       # self.light_label = tk.Label(self.theme_frame,text = 'Light')
        
-       self.dark_label.pack(side='top',padx=0, pady=0)
-       self.theme_switch.pack(side='top',padx=(4,0), pady=0)
-       self.light_label.pack(side='top',padx=0, pady=0)
+       # self.dark_label.pack(side='top',padx=0, pady=0)
+       # self.theme_switch.pack(side='top',padx=(4,0), pady=0)
+       # self.light_label.pack(side='top',padx=0, pady=0)
+       
+       self.theme_frame = ttk.Frame(self.bot_frame)
+       self.theme_frame.grid(row=2, column=2, sticky = 'ne')
+       self.theme_switch = ttk.Checkbutton(self.theme_frame, style='Switch.TCheckbutton', text="Light", command= self.change_theme)
+       self.dark_label = tk.Label(self.theme_frame,text = 'Dark')
+       #self.light_label = tk.Label(self.theme_frame,text = 'Light')
+       
+       self.dark_label.pack(side='left',padx=0, pady=0)
+       self.theme_switch.pack(side='left',padx=(0,0), pady=0)
+       #self.light_label.pack(side='left',padx=0, pady=0)   
+    
     
     def Led_to_track(self):
         LED_colour = self.colour_to_track.get()
@@ -595,9 +619,15 @@ class Tracker_app():
         if self.root.tk.call("ttk::style", "theme", "use") == "azure-dark":
             # Set light theme
             self.root.tk.call("set_theme", "light")
+            self.logo_canvas.delete('all')
+            self.logo_canvas.logo_img = self.logo_imgnew
+            self.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.logo_imgnew)
         else:
             # Set dark theme
             self.root.tk.call("set_theme", "dark")
+            self.logo_canvas.delete('all')
+            self.logo_canvas.logo_img = self.logo_imgnew_dark
+            self.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.logo_imgnew_dark)
             
     def update_ledthresh(self,val):
         self.ledThreshold = int(self.thresh_slider.get())
@@ -852,6 +882,7 @@ if __name__ == "__main__":
     dir_path = os.path.dirname(os.path.realpath(__file__))
     root.tk.call('source', os.path.join(dir_path, 'tktheme\\azure.tcl'))
     root.tk.call("set_theme", "dark")
+    #root.geometry('1200x900')
     style = ttk.Style()
     style.configure('TCombobox', selectbackground=None, selectforeground=None)
     
