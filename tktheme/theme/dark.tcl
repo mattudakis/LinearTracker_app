@@ -206,7 +206,7 @@ namespace eval ttk::theme::azure-dark {
         # Elements
 
         # Button
-        ttk::style configure TButton -padding {8 4 8 4} -width -10 -anchor center
+        ttk::style configure TButton -padding {8 4 8 4} -width -10 -anchor center -justify center
 
         ttk::style element create Button.button image \
             [list $I(rect-basic) \
