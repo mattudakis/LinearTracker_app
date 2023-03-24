@@ -345,7 +345,7 @@ class Tracker_app():
        self.start_rest_button = ttk.Checkbutton(self.experiment_frame,text="Start rest", style="Toggle.TButton", command=self.start_stop_rest_button)
        self.start_rest_button.grid(row=1, column=0, padx=(50, 50), pady=(10, 10), sticky='nsew')
        
-       self.sessions_frame = ttk.Labelframe(self.experiment_frame, width = 200)
+       self.sessions_frame = ttk.Frame(self.experiment_frame, style='Card.TFrame')
        self.sessions_frame.grid(row=2, column=0, rowspan=2, sticky = 'nsew', pady=(5,20), padx=(20,10))
        self.sessions_frame.columnconfigure((0,1), weight=1)
        self.sessions_frame.rowconfigure((0,1,2,3), weight=1)       
@@ -371,14 +371,14 @@ class Tracker_app():
        self.rest_time_label_val.grid(row=3, column=1, sticky = 'nsw', pady=(5,10), padx=(0,10))
        
        
-       self.sessions_settings_frame = ttk.Labelframe(self.experiment_frame)
-       self.sessions_settings_frame.grid(row=0, column=1, rowspan=3, sticky = 'nsew', pady=(5,10), padx=(10,20))   
+       self.sessions_settings_frame = ttk.Frame(self.experiment_frame,style='Card.TFrame')
+       self.sessions_settings_frame.grid(row=0, column=1, rowspan=3, sticky = 'nsew', pady=(10,10), padx=(10,20))   
        self.sessions_settings_frame.columnconfigure((0,1), weight=1)
        self.sessions_settings_frame.rowconfigure((0,1,2), weight=1)
 
                
        self.length_frame = tk.Frame(self.sessions_settings_frame)
-       self.length_frame.grid(column = 0, row = 0, columnspan=2, pady=(0,0), sticky = 'nsew')           
+       self.length_frame.grid(column = 0, row = 0, columnspan=2, pady=(5,5),padx=(5,5), sticky = 'nsew')           
        self.length_frame.columnconfigure((0,1), weight=1)
        self.length_frame.rowconfigure((0,1,2), weight=1)
 
@@ -387,37 +387,37 @@ class Tracker_app():
        self.session_length_label.grid(row=0, column=0, sticky = 'nsw', pady=(5,0), padx=(10,5))
        
        self.session_len = tk.IntVar(self.length_frame,10)
-       self.session_length_input = ttk.Entry(self.length_frame,textvariable= self.session_len, width = 2)
+       self.session_length_input = ttk.Entry(self.length_frame,textvariable= self.session_len, width = 5)
        self.session_length_input.grid(row=0, column=1, sticky = 'w', pady=(5,5), padx=(0,5))
        
        self.rest_length_label = tk.Label(self.length_frame,text = "Rest Length:")
        self.rest_length_label.grid(row=1, column=0, sticky = 'nsw', pady=(5,5), padx=(10,5))
        
        self.rest_len = tk.IntVar(self.length_frame,3)
-       self.rest_length_input = ttk.Entry(self.length_frame,textvariable= self.rest_len, width = 2)
+       self.rest_length_input = ttk.Entry(self.length_frame,textvariable= self.rest_len, width = 5)
        self.rest_length_input.grid(row=1, column=1, sticky = 'w', pady=(5,5), padx=(0,5))
        
        self.animal_id_label = tk.Label(self.length_frame, text = "Animal ID:")
        self.animal_id_label.grid(row=2, column=0, sticky = 'w', pady=(15,10), padx=(10,5))
        
-       self.animal_id = tk.StringVar(self.length_frame ,"MU ")
-       self.animal_id_input = ttk.Entry(self.length_frame,textvariable= self.animal_id, width = 7)
+       self.animal_id = tk.StringVar(self.length_frame ,"#001")
+       self.animal_id_input = ttk.Entry(self.length_frame,textvariable= self.animal_id, width = 5)
        self.animal_id_input.grid(row=2, column=1, sticky = 'w', pady=(5,5), padx=(0,5))
        
        self.saving_frame = tk.Frame(self.sessions_settings_frame)
-       self.saving_frame.grid(column = 0, row = 1, columnspan=2, pady=(0,5), padx=(0,0), sticky = 'nsew')
+       self.saving_frame.grid(column = 0, row = 1, columnspan=2, pady=(0,5), padx=(5,5), sticky = 'nsew')
        self.saving_frame.columnconfigure((0,1), weight=1)
        self.saving_frame.rowconfigure((0,1), weight=1)
        
-       self.save_dir_label = tk.Label(self.saving_frame, text = "Save DIR:")
-       self.save_dir_label.grid(row=0, column=0, sticky = 'w', pady=(5,5), padx=(10,5))
+       #self.save_dir_label = tk.Label(self.saving_frame, text = "Save DIR:")
+       #self.save_dir_label.grid(row=0, column=0, sticky = 'w', pady=(5,5), padx=(10,5))
        
        self.save_dir = tk.StringVar(self.saving_frame ,"C:/temp ")
        self.save_dir_input = ttk.Entry(self.saving_frame,textvariable= self.save_dir, width = 12)
-       self.save_dir_input.grid(row=0, column=1, sticky = 'nsew', pady=(5,5), padx=(0,10))
+       self.save_dir_input.grid(row=1, column=0, columnspan=2, sticky = 'nsew', pady=(5,5), padx=(10,10))
        
        self.save_dir_button = ttk.Button(self.saving_frame,text="Get Save DIR", command=self.get_save_dir)
-       self.save_dir_button.grid(row=1, column=0, columnspan=2,  padx=(40, 30), pady=(0, 5), sticky='nsew')
+       self.save_dir_button.grid(row=0, column=0, columnspan=2,  padx=(40, 30), pady=(0, 5), sticky='nsew')
        
        self.reset_button_frame = tk.Frame(self.experiment_frame)
        self.reset_button_frame.grid(column = 1, row = 3, pady=(0,0), sticky = 'nsew')
