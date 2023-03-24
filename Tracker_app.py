@@ -16,6 +16,7 @@ import time
 from datetime import datetime
 
 from tkinter import ttk  # Normal Tkinter.* widgets are not themed!
+from tkinter import filedialog
 #from ttkthemes import ThemedTk
 
 
@@ -83,6 +84,7 @@ class video_stream():
                 self.process_position()
                 
                 self.elapsed = now-start
+                
                 self.fps = round(frame_count / self.elapsed,2)
                 
               
@@ -231,7 +233,7 @@ class Tracker_app():
        self.session_running = False
        self.rest_running = False
        self.session_start = 0
-       self.session_number = 0
+       self.session_number = 1
        
        #self.fps_string_var = "text"
        self.display_resolution = [640*1.2, 360*1.2]
@@ -302,9 +304,9 @@ class Tracker_app():
        self.video_canvas.pack()
        
     
-       r1 = Rectangle(self.video_canvas, 20, 200, 100, 280)
-       r2 = Rectangle(self.video_canvas, 100, 220, 500, 260)
-       r3 = Rectangle(self.video_canvas, 500, 200, 580, 280)
+       r1 = Rectangle(self.video_canvas, 100, 170, 180, 250)
+       r2 = Rectangle(self.video_canvas, 180, 190, 580, 230)
+       r3 = Rectangle(self.video_canvas, 580, 170, 660, 250)
     
        self.zones = [r1, r2, r3]
     
@@ -332,7 +334,7 @@ class Tracker_app():
        self.bot_frame.rowconfigure(1, weight=1)
        
        self.experiment_frame = ttk.Labelframe(self.bot_frame, text='Experiment Control', width = 330)
-       self.experiment_frame.grid(row=0, column=2, rowspan=2, pady=(5,10), padx=(15,5), sticky = 'nsew')
+       self.experiment_frame.grid(row=0, column=2, rowspan=2, pady=(5,5), padx=(15,5), sticky = 'nsew')
        
        self.experiment_frame.columnconfigure(0, weight=1)
        self.experiment_frame.columnconfigure(1, weight=1)
@@ -342,42 +344,101 @@ class Tracker_app():
        self.experiment_frame.rowconfigure(2, weight=1)
        self.experiment_frame.rowconfigure(3, weight=1)
        
+       #self.session_but_state = tk.IntVar(value=0)
+       self.start_session_button = ttk.Checkbutton(self.experiment_frame,text="Start Session", style="Toggle.TButton", command=self.start_stop_session_button)
+       self.start_session_button.grid(row=0, column=0, padx=(50, 50), pady=(40, 10),  sticky='nsew')
        
-       self.start_session_button = ttk.Button(self.experiment_frame,text="Start Session", command=self.start_stop_session_button)
-       self.start_session_button.grid(row=0, column=0, padx=(40, 40), pady=(20, 10),  ipady=2,sticky='nsew')
-       
-       self.start_rest_button = ttk.Button(self.experiment_frame,text="Start rest", command=self.start_stop_rest_button)
-       self.start_rest_button.grid(row=1, column=0, padx=(40, 40), pady=(10, 5), ipady=2,sticky='nsew')
+       #self.rest_but_state = tk.IntVar(value=0)
+       self.start_rest_button = ttk.Checkbutton(self.experiment_frame,text="Start rest", style="Toggle.TButton", command=self.start_stop_rest_button)
+       self.start_rest_button.grid(row=1, column=0, padx=(50, 50), pady=(10, 10), sticky='nsew')
        
        self.sessions_frame = ttk.Labelframe(self.experiment_frame, width = 200)
-       self.sessions_frame.grid(row=2, column=0, rowspan=2, sticky = 'nsew', pady=(10,10), padx=(10,10))
+       self.sessions_frame.grid(row=2, column=0, rowspan=2, sticky = 'nsew', pady=(10,20), padx=(20,10))
        
        
-       self.session_number_label = tk.Label(self.sessions_frame,text = "Session number: 0")
-       self.session_number_label.grid(row=0, column=0, sticky = 'nsw', pady=(5,10), padx=(10,10))
+       self.session_number_label = tk.Label(self.sessions_frame,text = ("Session number: "),font=("Segoe Ui", 12))
+       self.session_number_label.grid(row=0, column=0, sticky = 'nsw', pady=(10,5), padx=(10,0))
+       self.session_number_label_val = tk.Label(self.sessions_frame,text = (str(self.session_number)),font=("Segoe Ui", 12),fg='#007fff')
+       self.session_number_label_val.grid(row=0, column=1, sticky = 'nsw', pady=(10,5), padx=(0,10))
        
-       self.session_time_label = tk.Label(self.sessions_frame,text = "Session Time: 00:00:000")
-       self.session_time_label.grid(row=1, column=0, sticky = 'nsw', pady=(10,10), padx=(10,10))
+       self.lap_num_label = tk.Label(self.sessions_frame,text = "Number of laps:",font=("Segoe Ui", 12))
+       self.lap_num_label.grid(row=1, column=0, sticky = 'nsw', pady=(5,30), padx=(10,0))
+       self.lap_num_label_val = tk.Label(self.sessions_frame,text = "0",font=("Segoe Ui", 12),fg='#007fff')
+       self.lap_num_label_val.grid(row=1, column=1, sticky = 'nsw', pady=(5,30), padx=(0,10))       
        
-       self.lap_num_label = tk.Label(self.sessions_frame,text = "Number of laps:")
-       self.lap_num_label.grid(row=2, column=0, sticky = 'nsw', pady=(10,10), padx=(10,0))
-       
-       self.rest_time_label = tk.Label(self.sessions_frame,text = "Rest Time: 00:00:000")
-       self.rest_time_label.grid(row=3, column=0, sticky = 'nsw', pady=(10,5), padx=(10,10))
+       self.session_time_label = tk.Label(self.sessions_frame,text = "Session Time:",font=("Segoe Ui", 12))
+       self.session_time_label.grid(row=2, column=0, sticky = 'nsw', pady=(10,5), padx=(10,0))
+       self.session_time_label_val = tk.Label(self.sessions_frame,text = "00:00.0",font=("Segoe Ui", 12),fg='#007fff')
+       self.session_time_label_val.grid(row=2, column=1, sticky = 'nsw', pady=(10,5), padx=(0,10))
+             
+       self.rest_time_label = tk.Label(self.sessions_frame,text = "Rest Time:",font=("Segoe Ui", 12))
+       self.rest_time_label.grid(row=3, column=0, sticky = 'nsw', pady=(5,10), padx=(10,0))
+       self.rest_time_label_val = tk.Label(self.sessions_frame,text = "00:00.0",font=("Segoe Ui", 12),fg='#007fff')
+       self.rest_time_label_val.grid(row=3, column=1, sticky = 'nsw', pady=(5,10), padx=(0,10))
        
        
        self.sessions_settings_frame = ttk.Labelframe(self.experiment_frame)
        self.sessions_settings_frame.grid(row=0, column=1, rowspan=3, sticky = 'nsew', pady=(10,10), padx=(10,20))
        
-       self.session_length_label = tk.Label(self.sessions_settings_frame,text = "Session Length:")
-       self.session_length_label.grid(row=0, column=0, sticky = 'nsw', pady=(10,10), padx=(10,10))
+       self.sessions_settings_frame.columnconfigure(0, weight=1)
+       self.sessions_settings_frame.columnconfigure(1, weight=1)
+
+       # self.sessions_settings_frame.rowconfigure(0, weight=1)
+       # self.sessions_settings_frame.rowconfigure(1, weight=1)
+       # self.sessions_settings_frame.rowconfigure(2, weight=1)
+           
        
-       self.session_length_input = ttk.Entry(self.sessions_settings_frame,text = "10", width = 2)
-       self.session_length_input.grid(row=0, column=1, sticky = 'w', pady=(10,10), padx=(10,10))
+       
+       self.length_frame = tk.Frame(self.sessions_settings_frame)
+       self.length_frame.grid(column = 0, row = 0, columnspan=2, pady=(5,0), sticky = 'nsew')
+       
+       self.session_length_label = tk.Label(self.length_frame,text = "Session Length:")
+       self.session_length_label.grid(row=0, column=0, sticky = 'nsw', pady=(5,0), padx=(10,5))
+       
+       self.session_len = tk.IntVar(self.length_frame,10)
+       self.session_length_input = ttk.Entry(self.length_frame,textvariable= self.session_len, width = 2)
+       self.session_length_input.grid(row=0, column=1, sticky = 'w', pady=(5,5), padx=(0,5))
+       
+       self.rest_length_label = tk.Label(self.length_frame,text = "Rest Length:")
+       self.rest_length_label.grid(row=1, column=0, sticky = 'nsw', pady=(5,5), padx=(10,5))
+       
+       self.rest_len = tk.IntVar(self.length_frame,3)
+       self.rest_length_input = ttk.Entry(self.length_frame,textvariable= self.rest_len, width = 2)
+       self.rest_length_input.grid(row=1, column=1, sticky = 'w', pady=(5,5), padx=(0,5))
+       
+
+       self.animal_id_label = tk.Label(self.length_frame, text = "Animal ID:")
+       self.animal_id_label.grid(row=2, column=0, sticky = 'w', pady=(25,15), padx=(10,5))
+       
+       self.animal_id = tk.StringVar(self.length_frame ,"MU ")
+       self.animal_id_input = ttk.Entry(self.length_frame,textvariable= self.animal_id, width = 7)
+       self.animal_id_input.grid(row=2, column=1, sticky = 'w', pady=(15,10), padx=(0,0))
        
        
        
+       self.saving_frame = tk.Frame(self.sessions_settings_frame)
+       self.saving_frame.grid(column = 0, row = 1, columnspan=2, pady=(0,0), padx=(0,0), sticky = 'nsew')
+            
+       self.save_dir_label = tk.Label(self.saving_frame, text = "Save DIR:")
+       self.save_dir_label.grid(row=0, column=0, sticky = 'w', pady=(10,5), padx=(10,5))
        
+       self.save_dir = tk.StringVar(self.saving_frame ,"C:/temp ")
+       self.save_dir_input = ttk.Entry(self.saving_frame,textvariable= self.save_dir, width = 12)
+       self.save_dir_input.grid(row=0, column=1, sticky = 'nsew', pady=(10,5), padx=(0,0))
+       
+       self.save_dir_button = ttk.Button(self.saving_frame,text="Get Save DIR", command=self.get_save_dir)
+       self.save_dir_button.grid(row=1, column=0, columnspan=2,  padx=(40, 30), pady=(5, 10), sticky='nsew')
+       
+       
+       self.reset_button_frame = tk.Frame(self.experiment_frame)
+       self.reset_button_frame.grid(column = 1, row = 3, pady=(0,0), sticky = 'nsew')
+       
+       
+       self.reset_sessions_button = ttk.Button(self.reset_button_frame,text="Reset\nSessions", command=self.reset_sessions)
+       self.reset_sessions_button.grid(row=0, column=1,  padx=(5, 10), pady=(20, 40),sticky='nsew')
+       
+       self.reset_experiment_button = ttk.Button(self.reset_button_frame,text="Reset\nExperiment", command=self.reset_sessions)
+       self.reset_experiment_button.grid(row=0, column=0,  padx=(10, 5), pady=(20, 40),sticky='nsew')
        
        
        
@@ -467,11 +528,12 @@ class Tracker_app():
        self.tracking_frame.rowconfigure(3, weight=1)
        
        
-       
-       self.stream_button = ttk.Button(self.aquisition_frame,text="Start Stream", command=self.start_stop_stream_button)
+       self.stream_but_state = tk.IntVar(value=0)
+       self.stream_button = ttk.Checkbutton(self.aquisition_frame,text="Start Stream", style="Toggle.TButton",variable =self.stream_but_state, command=self.start_stop_stream_button)
        self.stream_button.grid(row=0, column=0, columnspan=2, padx=(20, 20), pady=(10, 10), ipady=7,sticky='nsew')
       
-       self.start_button = ttk.Button(self.aquisition_frame,text="Record", command=self.start_rec_button)
+       self.rec_but_state = tk.IntVar(value=0)
+       self.start_button = ttk.Checkbutton(self.aquisition_frame,text="Record", style="Toggle.TButton",variable = self.rec_but_state, command=self.start_rec_button)
        self.start_button.grid(row=1, column=0, padx=(20,10), pady=(5,20), ipady=7,sticky='nsew')
        
        self.stop_button = ttk.Button(self.aquisition_frame,text="Stop Rec.", command=self.stop_rec_button, state="disabled")
@@ -479,10 +541,13 @@ class Tracker_app():
        
        
        
-       self.video_res = tk.StringVar()
-       self.vid_res_cb = ttk.Combobox(self.aquisition_frame,textvariable=self.video_res,height=5)
+       self.vid_res_frame = ttk.Frame(self.aquisition_frame)
+       self.vid_res_frame.grid(row=2, column=0, columnspan=2)
        
-       self.vid_res_cb.grid(row=2, column=0, columnspan=2, sticky='s', pady=5, padx=0)
+       self.video_res = tk.StringVar()
+       self.vid_res_cb = ttk.Combobox(self.vid_res_frame,textvariable=self.video_res,height=5)
+       
+       self.vid_res_cb.grid(row=0, column=1, sticky='s', pady=5, padx=0)
        self.vid_res_cb['values'] = self.avaliable_resolutions_string
        self.vid_res_cb['state'] = 'readonly'
        self.vid_res_cb.set(self.avaliable_resolutions_string[-1])
@@ -491,8 +556,8 @@ class Tracker_app():
        self.vid_res_cb.bind("<<ComboboxSelected>>",lambda e: self.bot_frame.focus())
        
        self.fps_string_var = tk.StringVar()
-       self.fps_label = tk.Label(self.aquisition_frame,textvariable = self.fps_string_var)
-       self.fps_label.grid(row=2, column=0, sticky='w', pady=2, padx=2)
+       self.fps_label = tk.Label(self.vid_res_frame,textvariable = self.fps_string_var)
+       self.fps_label.grid(row=0, column=0, sticky='w', pady=2, padx=2)
        
        self.theme_frame = ttk.Frame(self.bot_frame)
        self.theme_frame.grid(row=1, column=4, sticky = 'sw', pady=(10))
@@ -535,8 +600,13 @@ class Tracker_app():
     def update_ledsize(self,val):
         self.ledSize = int(self.ledsize_slider.get())
     
-    
-    
+    def get_save_dir(self):
+        save_directory = filedialog.askdirectory()
+        self.save_dir.set(save_directory)
+        
+    def reset_sessions(self):
+        self.session_number = 1
+        
     def get_avaliable_resolutions(self):   
        
         possible_res = [(1920, 1080), (1280,720), (854,480), (640,360)]
@@ -611,6 +681,7 @@ class Tracker_app():
             
             self.stream_button.config(text="Start Stream")
             self.stream_button.config(state="normal")
+            self.rec_but_state.set(0)
             self.start_button.config(text="Record")
             self.start_button.config(state="normal")
             self.stop_button.config(state="disabled")
@@ -635,6 +706,7 @@ class Tracker_app():
         
         self.start_button.config(text="Recording...")
         self.start_button.config(state="disabled")
+        self.stream_but_state.set(1)
         self.stream_button.config(text="Streaming... Press to stop")
         self.stop_button.config(state="normal")
         self.vid_res_cb.config(state="disabled")
@@ -656,6 +728,7 @@ class Tracker_app():
         self.is_recording = self.cam.stop_record()
         
         self.start_button.config(text="Record")
+        self.rec_but_state.set(0)
         self.start_button.config(state="normal") 
         self.stop_button.config(state="disabled")
     
@@ -667,16 +740,19 @@ class Tracker_app():
             self.session_time = datetime.now() - self.session_start 
             minutes, seconds = divmod(self.session_time.seconds, 60)
             hours, minutes = divmod(minutes, 60)
-            # Round the microseconds to millis.
-            millis = round(self.session_time.microseconds/1000)
+            #Round the microseconds to millis.
+            hund_millis = round(self.session_time.microseconds/100000)
+            if hund_millis == 10:
+                hund_millis = 0
             
             if hours > 0:
-                session_time_string = f"Session Time: {hours}:{minutes:02}:{seconds:02}.{millis:03}"
+                session_time_string = f"{hours}:{minutes:02}:{seconds:02}.{hund_millis:01}"
             else:
-                session_time_string = f"Session Time: {minutes:02}:{seconds:02}.{millis:03}"
+                session_time_string = f"{minutes:02}:{seconds:02}.{hund_millis:01}"
+                #print(f"{millis:03}")
             
-            self.session_time_label['text'] = session_time_string
-            self.session_number_label['text'] = ("Session number: " + str(self.session_number))
+            self.session_time_label_val['text'] = session_time_string
+            self.session_number_label_val['text'] = (str(self.session_number))
         
         if self.rest_running:
             
@@ -685,19 +761,23 @@ class Tracker_app():
             minutes, seconds = divmod(self.rest_time.seconds, 60)
             hours, minutes = divmod(minutes, 60)
             # Round the microseconds to millis.
-            millis = round(self.rest_time.microseconds/1000)
-            
+            hund_millis = round(self.rest_time.microseconds/100000)
+            if hund_millis == 10:
+                hund_millis = 0
+                
             if hours > 0:
-                rest_time_string = f"Rest Time: {hours}:{minutes:02}:{seconds:02}.{millis:03}"
+                rest_time_string = f"{hours}:{minutes:02}:{seconds:02}.{hund_millis:01}"
             else:
-                rest_time_string = f"Rest Time: {minutes:02}:{seconds:02}.{millis:03}"
+                rest_time_string = f"{minutes:02}:{seconds:02}.{hund_millis:01}"
             
-            self.rest_time_label['text'] = rest_time_string   
+            self.rest_time_label_val['text'] = rest_time_string   
         
         
     def Refresher(self):
-    
-        self.fps_string_var.set(("FPS: " + str(self.cam.fps)))
+        
+        #self.fps = f'{FPS: self.cam.fps:.2f}'
+        
+        self.fps_string_var.set(f'FPS: {self.cam.fps:.2f}')
         
         if self.is_streaming:
             
