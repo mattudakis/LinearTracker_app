@@ -222,6 +222,7 @@ class Tracker_app():
        self.root = master
        self.root.title("LinearTrack_er")
        
+       
        self.root.protocol("WM_DELETE_WINDOW", self.closeWindow)
        self.is_streaming = False
        self.ledThreshold = 50
@@ -238,7 +239,7 @@ class Tracker_app():
        self.cam = video_stream() 
     
        self.setup_display()
-       
+       self.root.iconbitmap("tktheme/theme/logos/tracker_icon.ico")
 
         
     
@@ -304,11 +305,11 @@ class Tracker_app():
        self.zones = [r1, r2, r3]
        
        
-       logo_img = Image.open("tktheme/theme/trackerlogo.png")
+       logo_img = Image.open("tktheme/theme/logos/trackerlogo.png")
        logo_img_small = logo_img.resize((220,40))
        self.logo_imgnew = ImageTk.PhotoImage(logo_img_small)
        
-       logo_img_dark = Image.open("tktheme/theme/trackerlogo_dark.png")
+       logo_img_dark = Image.open("tktheme/theme/logos/trackerlogo_dark.png")
        logo_img_dark_small = logo_img_dark.resize((220,40))
        self.logo_imgnew_dark = ImageTk.PhotoImage(logo_img_dark_small)
        
@@ -811,6 +812,7 @@ if __name__ == "__main__":
     #root = ThemedTk(theme="equilux",themebg = True)
     #root.configure(bg="#293137")
     root = tk.Tk()
+    
     dir_path = os.path.dirname(os.path.realpath(__file__))
     root.tk.call('source', os.path.join(dir_path, 'tktheme\\azure.tcl'))
     root.tk.call("set_theme", "dark")
