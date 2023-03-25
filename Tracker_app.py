@@ -30,7 +30,7 @@ class video_stream():
         self.tracked_position = None
         self.fps = 0
         self.colour_chan = 2
-        self.ledThresh = 50
+        self.led_tledhresh = 50
         
         
         
@@ -156,7 +156,7 @@ class video_stream():
     
     def find_position(self):
             
-        #self.ledThresh = app.ledThreshold
+        #self.led_thresh = app.led_threshold
         
         
         kernel1 = np.ones((15,15),np.uint8)
@@ -164,7 +164,7 @@ class video_stream():
            
         frame_bw = cv2.cvtColor(self.frame_resized, cv2.COLOR_BGR2GRAY)
         mask = cv2.subtract(self.frame_resized[:,:,self.colour_chan],frame_bw) 
-        (t, mask2) = cv2.threshold(mask, self.ledThresh, 255, cv2.THRESH_BINARY)
+        (t, mask2) = cv2.threshold(mask, self.led_thresh, 255, cv2.THRESH_BINARY)
         # using morphology close nearby pixels to get a 'blob'
        
         mask2 = cv2.GaussianBlur(mask2,(3,3),0)
@@ -217,7 +217,7 @@ class video_stream():
         
             
             
-class Tracker_app():
+class tracker_app():
     def __init__(self,master):
        self.root = master
        self.root.title("LinearTrack_er")
@@ -225,7 +225,7 @@ class Tracker_app():
        
        self.root.protocol("WM_DELETE_WINDOW", self.closeWindow)
        self.is_streaming = False
-       self.ledThreshold = 50
+       self.led_threshold = 50
        self.mask_colour = [0,0,255]
        self.session_running = False
        self.rest_running = False
@@ -452,8 +452,8 @@ class Tracker_app():
        self.save_tracking_check.grid(row=2, column=1, columnspan=2, sticky='nsew', pady=5, padx=(0,10))
         
        #red_thresh = tk.IntVar()
-       self.thresh_slider = ttk.Scale(self.tracking_frame, length = 100, from_=0, to=100, orient = 'horizontal', command=self.update_ledthresh)
-       self.thresh_slider.set(self.ledThreshold)
+       self.thresh_slider = ttk.Scale(self.tracking_frame, length = 100, from_=0, to=100, orient = 'horizontal', command=self.update_led_thresh)
+       self.thresh_slider.set(self.led_threshold)
        self.thresh_slider.grid(row=0, column=0, columnspan=2, sticky='ew', padx=(20,0), pady=(15,5))
        self.thresh_label = tk.Label(self.tracking_frame,text = "Red Threshold")
        self.thresh_label .grid(row=0, column=2,padx=5, pady=(15,5), sticky='w')
@@ -465,18 +465,18 @@ class Tracker_app():
        self.ledsize_label.grid(row=1, column=2, padx=5, pady=5, sticky='w')
            
        self.colour_to_track = tk.StringVar()
-       self.LED_colour_spin = ttk.Spinbox(self.tracking_frame,textvariable=self.colour_to_track,width=12, command=self.Led_to_track)
-       self.LED_colour_spin.grid(row=0, column=3, sticky='ew', pady=(15,5), padx=(5,0))
-       self.LED_colour_spin['values'] = ('Red', 'Green', 'Blue')
-       self.LED_colour_spin['state'] = 'readonly'
-       self.LED_colour_spin.set('Red')
+       self.led_colour_spin = ttk.Spinbox(self.tracking_frame,textvariable=self.colour_to_track,width=12, command=self.Led_to_track)
+       self.led_colour_spin.grid(row=0, column=3, sticky='ew', pady=(15,5), padx=(5,0))
+       self.led_colour_spin['values'] = ('Red', 'Green', 'Blue')
+       self.led_colour_spin['state'] = 'readonly'
+       self.led_colour_spin.set('Red')
        self.led_label = tk.Label(self.tracking_frame,text = 'Tracking Colour')
        self.led_label.grid(row=0, column=4, sticky='w', padx=(5,20), pady=(5,5))
        
        self.frame_to_display = tk.StringVar()
        self.frame_cb = ttk.Combobox(self.tracking_frame,textvariable=self.frame_to_display,width=12)
        self.frame_cb.grid(row=1, column=3, sticky='ew', pady=(5,5), padx=(5,0))
-       self.frame_cb['values'] = ('Track', 'LED Mask', 'Crop Track')
+       self.frame_cb['values'] = ('Track', 'led Mask', 'Crop Track')
        self.frame_cb['state'] = 'readonly'
        self.frame_cb.set('Track')
        self.frame_label = tk.Label(self.tracking_frame,text = 'Display Frame')
@@ -533,15 +533,15 @@ class Tracker_app():
     
     
     def Led_to_track(self):
-        LED_colour = self.colour_to_track.get()
-        self.ledsize_label['text'] = (LED_colour + " Size")
-        self.thresh_label['text'] = (LED_colour + " Threshold")
+        led_colour = self.colour_to_track.get()
+        self.ledsize_label['text'] = (led_colour + " Size")
+        self.thresh_label['text'] = (led_colour + " Threshold")
         
-        if LED_colour == 'Red':
+        if led_colour == 'Red':
             channel = 2    
-        elif LED_colour == 'Green':
+        elif led_colour == 'Green':
             channel = 1
-        elif LED_colour == 'Blue':
+        elif led_colour == 'Blue':
             channel = 0
         
         self.mask_colour = [0,0,0]
@@ -562,9 +562,9 @@ class Tracker_app():
             self.logo_canvas.logo_img = self.logo_imgnew_dark
             self.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.logo_imgnew_dark)
             
-    def update_ledthresh(self,val):
-        self.ledThreshold = int(self.thresh_slider.get())
-        self.cam.ledThresh = self.ledThreshold
+    def update_led_thresh(self,val):
+        self.led_threshold = int(self.thresh_slider.get())
+        self.cam.led_thresh = self.led_threshold
     
     def update_ledsize(self,val):
         self.ledSize = int(self.ledsize_slider.get())
@@ -820,7 +820,7 @@ if __name__ == "__main__":
     style = ttk.Style()
     style.configure('TCombobox', selectbackground=None, selectforeground=None)
     
-    app = Tracker_app(root)
+    app = tracker_app(root)
     root.mainloop()
 
     
