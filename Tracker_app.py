@@ -30,7 +30,7 @@ class video_stream():
         self.tracked_position = None
         self.fps = 0
         self.colour_chan = 2
-        self.led_tledhresh = 50
+        self.led_thresh = 50
         
         
         
