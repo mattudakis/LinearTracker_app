@@ -222,7 +222,6 @@ class tracker_app():
        self.root = master
        self.root.title("LinearTrack_er")
        
-       
        self.root.protocol("WM_DELETE_WINDOW", self.closeWindow)
        self.is_streaming = False
        self.led_threshold = 50
@@ -239,10 +238,9 @@ class tracker_app():
        self.cam = video_stream() 
     
        self.setup_display()
+       
        self.root.iconbitmap("tktheme/theme/logos/tracker_icon.ico")
 
-        
-    
         
     def setup_display(self):
         
@@ -320,7 +318,7 @@ class tracker_app():
         # Create a Label Widget to display the text or Image
         
        
-       self.arduino_frame = ttk.Labelframe(self.top_frame,text='Arduino Control', height = 320, width = 250)
+       self.arduino_frame = ttk.Labelframe(self.top_frame,text='Arduino Control', height = 320, width = 200)
        self.arduino_frame.grid(row=1, column=1, padx=(10,5),pady=(5,0), sticky = 'nsew')
        
        
@@ -530,6 +528,15 @@ class tracker_app():
        
        self.dark_label.pack(side='left',padx=0, pady=0)
        self.theme_switch.pack(side='left',padx=(0,0), pady=0)
+       
+       # self.root.minsize(self.root.winfo_width(), self.root.winfo_height())
+       # x_cordinate = int((self.root.winfo_screenwidth() / 2) - (self.root.winfo_width() / 2))
+       # y_cordinate = int((self.root.winfo_screenheight() / 2) - (self.root.winfo_height() / 2))
+       # self.root.geometry("+{}+{}".format(x_cordinate, y_cordinate-20))
+       
+       # print(self.root.geometry)
+       # print(self.root.winfo_width())
+       # print(self.root.winfo_height())
     
     
     def Led_to_track(self):
@@ -575,6 +582,7 @@ class tracker_app():
         
     def reset_sessions(self):
         self.session_number = 1
+        print(self.root.winfo_height())
         
     def get_avaliable_resolutions(self):   
        
@@ -804,23 +812,28 @@ class tracker_app():
 
 
 
-#def main():
+
 
     
 if __name__ == "__main__":
     
-    #root = ThemedTk(theme="equilux",themebg = True)
-    #root.configure(bg="#293137")
     root = tk.Tk()
     
     dir_path = os.path.dirname(os.path.realpath(__file__))
     root.tk.call('source', os.path.join(dir_path, 'tktheme\\azure.tcl'))
     root.tk.call("set_theme", "dark")
-    #root.geometry('1200x900')
     style = ttk.Style()
     style.configure('TCombobox', selectbackground=None, selectforeground=None)
     
     app = tracker_app(root)
+    
+    # update the window and then set the min size for the window to keep geometry
+    root.update()
+    root.minsize(root.winfo_width(), root.winfo_height())
+    x_cordinate = int((root.winfo_screenwidth() / 2) - (root.winfo_width() / 2))
+    y_cordinate = int((root.winfo_screenheight() / 2) - (root.winfo_height() / 2))
+    root.geometry("+{}+{}".format(x_cordinate, y_cordinate-20))
+    
     root.mainloop()
 
     
