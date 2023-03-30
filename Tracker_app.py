@@ -33,6 +33,7 @@ class video_stream():
         self.colour_chan = 2
         self.led_thresh = 50
         self.video_resolution = [640,360]
+        self.vid_tag = "Sample"
 
 
     def start_capture(self):
@@ -90,9 +91,9 @@ class video_stream():
     def start_record(self):
         vid_w = self.video_resolution[0]
         vid_h = self.video_resolution[1]
-        vidname = "test"
+        vid_name = (self.vid_tag+".avi")
         fourcc = cv2.VideoWriter_fourcc("M", "J", "P", "G")
-        self.video_writer = cv2.VideoWriter("sample.avi",fourcc , 30, (vid_w, vid_h))
+        self.video_writer = cv2.VideoWriter(vid_name,fourcc , 30, (vid_w, vid_h))
         self.recording = True
 
 
@@ -157,8 +158,8 @@ class video_stream():
         pos = self.tracked_position
         
         inzone = np.zeros(3,dtype=int)
-        for i, r in enumerate(self.reward_zones):
-           inzone[i] = r.is_occupied(pos)
+        for i, zone in enumerate(self.reward_zones):
+           inzone[i] = zone.is_occupied(pos)
            
         if any(inzone):
             zone_occupied = np.argwhere(inzone)
@@ -508,6 +509,22 @@ class tracker_app():
             padx=(0,5)
             )
         
+        # Auto session length check box
+        self.auto_session = tk.IntVar(value=0)
+        self.auto_session_len = ttk.Checkbutton(
+            self.length_frame, 
+            variable=self.auto_session, 
+            text = 'Auto session length'
+            )
+        self.auto_session_len.grid(
+            row=2, 
+            column=0,
+            columnspan=2, 
+            pady=5, 
+            sticky='w', 
+            padx=(10,5)
+            )
+
         # Animal ID text and values
         self.animal_id_label = tk.Label(
             self.length_frame, 
@@ -520,14 +537,14 @@ class tracker_app():
             width = 5
             )
         self.animal_id_label.grid(
-            row=2, 
+            row=3, 
             column=0, 
             sticky = 'w', 
             pady=(15,10), 
             padx=(10,5)
             )
         self.animal_id_input.grid(
-            row=2, 
+            row=3, 
             column=1, 
             sticky = 'w', 
             pady=(5,5), 
@@ -547,7 +564,7 @@ class tracker_app():
         self.saving_frame.columnconfigure((0,1), weight=1)
         self.saving_frame.rowconfigure((0,1), weight=1)
         
-        
+        # Save directory input box 
         self.save_dir = tk.StringVar(self.saving_frame ,"C:/temp ")
         self.save_dir_input = ttk.Entry(
             self.saving_frame,
@@ -563,6 +580,7 @@ class tracker_app():
             padx=(10,10)
             )
         
+        # Save directory get button 
         self.save_dir_button = ttk.Button(
             self.saving_frame,
             text="Get Save DIR", 
@@ -577,6 +595,7 @@ class tracker_app():
             sticky='nsew'
             )
         
+        # Frame for reset buttons
         self.reset_button_frame = tk.Frame(self.experiment_frame)
         self.reset_button_frame.grid(
             column = 1, 
@@ -586,6 +605,7 @@ class tracker_app():
             )
         self.reset_button_frame.columnconfigure((0,1), weight=1)
         
+        # Reset session button
         self.reset_sessions_button = ttk.Button(
             self.reset_button_frame,
             text="Reset\nSessions", 
@@ -599,6 +619,7 @@ class tracker_app():
             sticky='nsew'
             )
         
+        # Reset rest button
         self.reset_experiment_button = ttk.Button(
             self.reset_button_frame,
             text="Reset\nExperiment", 
@@ -612,9 +633,7 @@ class tracker_app():
             sticky='nsew'
             )
         
-        
-        
-
+        # Frame for Inscopix controls 
         self.inscopix_frame = ttk.Labelframe(
             self.bot_frame, 
             text='Inscopix Control',
@@ -629,7 +648,7 @@ class tracker_app():
             )
         
         
-        
+        # Frame for tracking controls
         self.tracking_frame = ttk.Labelframe(
             self.bot_frame,
             text='Tracking Controls', 
@@ -646,6 +665,7 @@ class tracker_app():
         self.tracking_frame.columnconfigure((0,1,2), weight=1)
         self.tracking_frame.rowconfigure((0,1,2,3), weight=1)
         
+        # Overlay tracking position checkbox
         self.overlay_position = tk.IntVar(value=0)
         self.overlay_check = ttk.Checkbutton(
             self.tracking_frame, 
@@ -660,6 +680,7 @@ class tracker_app():
             padx=(10,10)
             )
         
+        # Save tracking data dialog box
         self.save_tracking = tk.IntVar(value=0)
         self.save_tracking_check = ttk.Checkbutton(
             self.tracking_frame, 
@@ -676,7 +697,7 @@ class tracker_app():
             padx=(0,10)
             )
         
-        #red_thresh = tk.IntVar()
+        # LED colour threshold slider and label
         self.thresh_slider = ttk.Scale(
             self.tracking_frame, 
             length = 100, 
@@ -694,7 +715,6 @@ class tracker_app():
             pady=(15,5)
             )
         self.thresh_slider.set(self.led_threshold)
-
         self.thresh_label = tk.Label(
             self.tracking_frame,
             text = "Red Threshold"
@@ -707,7 +727,7 @@ class tracker_app():
             sticky='w'
             )
        
-        
+        # LED mask size slider and label - probably not needed
         self.ledsize_slider = ttk.Scale(
             self.tracking_frame, 
             length = 100, 
@@ -735,7 +755,8 @@ class tracker_app():
             pady=5, 
             sticky='w'
             )
-            
+
+        # LED colour spinbox selector and label   
         self.colour_to_track = tk.StringVar()
         self.led_colour_spin = ttk.Spinbox(
             self.tracking_frame,
@@ -753,8 +774,6 @@ class tracker_app():
         self.led_colour_spin['values'] = ('Red', 'Green', 'Blue')
         self.led_colour_spin['state'] = 'readonly'
         self.led_colour_spin.set('Red')
-
-        
         self.led_label = tk.Label(
             self.tracking_frame,
             text = 'Tracking Colour'
@@ -767,6 +786,7 @@ class tracker_app():
             pady=(5,5)
             )
         
+        # Display frame selector and label
         self.frame_to_display = tk.StringVar()
         self.frame_cb = ttk.Combobox(
             self.tracking_frame,
@@ -783,7 +803,6 @@ class tracker_app():
         self.frame_cb['values'] = ('Track', 'led Mask', 'Crop Track')
         self.frame_cb['state'] = 'readonly'
         self.frame_cb.set('Track')
-
         self.frame_label = tk.Label(
             self.tracking_frame,
             text = 'Display Frame'
@@ -796,6 +815,7 @@ class tracker_app():
             pady=5
             )
         
+        # Track crop button - could change to a checkbox
         self.crop_button = ttk.Button(
             self.tracking_frame,
             text="Crop Track",
@@ -810,8 +830,7 @@ class tracker_app():
             pady=(5,20)
             )
         
-        
-        
+        # Frame for aquisition controls
         self.aquisition_frame = ttk.Labelframe(
             self.bot_frame,
             text='Aquisition Control', 
@@ -828,6 +847,7 @@ class tracker_app():
         self.aquisition_frame.columnconfigure((0,1), weight=1)  
         self.aquisition_frame.rowconfigure((0,1,2), weight=1)
 
+        # Start and stop video stream button
         self.stream_but_state = tk.IntVar(value=0)
         self.stream_button = ttk.Checkbutton(
             self.aquisition_frame,
@@ -846,6 +866,7 @@ class tracker_app():
             sticky='nsew'
             )
         
+        # Start video recording button
         self.rec_but_state = tk.IntVar(value=0)
         self.start_button = ttk.Checkbutton(
             self.aquisition_frame,
@@ -863,6 +884,7 @@ class tracker_app():
             sticky='nsew'
             )
         
+        # Stop video recording button
         self.stop_button = ttk.Button(
             self.aquisition_frame,
             text="Stop Rec.", 
@@ -878,6 +900,7 @@ class tracker_app():
             sticky='nsew'
             )
 
+        # Frame to hold video resolution and FPS
         self.vid_res_frame = ttk.Frame(self.aquisition_frame)
         self.vid_res_frame.grid(
             row=2, 
@@ -885,13 +908,13 @@ class tracker_app():
             columnspan=2
             )
         
+        # Video resolution selector spinbox
         self.video_res = tk.StringVar()
         self.vid_res_cb = ttk.Combobox(
             self.vid_res_frame,
             textvariable=self.video_res,
             height=5
             )
-        
         self.vid_res_cb.grid(
             row=0, 
             column=1, 
@@ -902,8 +925,8 @@ class tracker_app():
         self.vid_res_cb['values'] = self.avaliable_resolutions_string
         self.vid_res_cb['state'] = 'readonly'
         self.vid_res_cb.set(self.avaliable_resolutions_string[-1])
-        
-        self.set_camera_resolution()
+    
+        #self.set_camera_resolution()
         self.vid_res_cb.bind('<<ComboboxSelected>>', self.set_camera_resolution)
         self.vid_res_cb.bind("<<ComboboxSelected>>",lambda e: self.bot_frame.focus())
         
@@ -1095,6 +1118,13 @@ class tracker_app():
     
     def start_rec_button(self):         
         # start the video stream recording
+        time_now = datetime.now()
+        vid_time_stamp = time_now.strftime("%Y%m%d_%H%M%S")
+        ID_stamp = self.animal_id.get()
+        session_stamp = str(self.session_number)
+        vidname = (ID_stamp + "_Session_" + session_stamp + "_" + vid_time_stamp)
+        print("recording video: " + vidname)
+        self.cam.vid_tag = vidname
         self.cam.start_record()
         
         # update the GUI buttons
