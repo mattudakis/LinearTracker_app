@@ -156,7 +156,7 @@ class video_stream():
 
 
     def process_position(self):
-        self.reward_zones = app.gui.zones #get location of reward zones
+        self.reward_zones = app.gui.video.zones #get location of reward zones
         pos = self.tracked_position
         
         inzone = np.zeros(3,dtype=int)
@@ -202,27 +202,30 @@ class tracker_app():
         self.bind_callbacks()
        
     def bind_callbacks(self):
-        self.gui.start_session_button.configure(command= self.start_stop_session_button) 
-        self.gui.start_rest_button.configure(command= self.start_stop_rest_button) 
-        self.gui.save_dir_button.configure(command= self.get_save_dir)
-        self.gui.reset_sessions_button.configure(command= self.reset_sessions)
-        self.gui.reset_experiment_button.configure(command= self.reset_sessions)
-        self.gui.thresh_slider.configure(command=self.update_led_thresh) 
-        self.gui.ledsize_slider.configure(command=self.update_ledsize)
-        self.gui.led_colour_spin.configure(command=self.Led_to_track)
-        self.gui.stream_button.configure(command=self.start_stop_stream_button)
-        self.gui.start_button.configure(command= self.start_rec_button)
-        self.gui.stop_button.configure(command= self.stop_rec_button)
+        self.gui.experiment.start_session_button.configure(command= self.start_stop_session_button) 
+        self.gui.experiment.start_rest_button.configure(command= self.start_stop_rest_button) 
+        self.gui.experiment.save_dir_button.configure(command= self.get_save_dir)
+        self.gui.experiment.reset_sessions_button.configure(command= self.reset_sessions)
+        self.gui.experiment.reset_experiment_button.configure(command= self.reset_sessions)
+        
+        self.gui.tracking.thresh_slider.configure(command=self.update_led_thresh) 
+        self.gui.tracking.ledsize_slider.configure(command=self.update_ledsize)
+        self.gui.tracking.led_colour_spin.configure(command=self.Led_to_track)
+        self.gui.tracking.crop_button.configure(command=self.crop_track)
+
+        self.gui.aquisition.stream_button.configure(command=self.start_stop_stream_button)
+        self.gui.aquisition.start_button.configure(command= self.start_rec_button)
+        self.gui.aquisition.stop_button.configure(command= self.stop_rec_button)
+        self.gui.aquisition.vid_res_cb.bind('<<ComboboxSelected>>', self.set_camera_resolution)
+        
         self.gui.theme_switch.configure(command= self.change_theme)
 
-        self.gui.vid_res_cb.bind('<<ComboboxSelected>>', self.set_camera_resolution)
-        
 
 
     def Led_to_track(self):
-        led_colour = self.gui.colour_to_track.get()
-        self.gui.ledsize_label['text'] = (led_colour + " Size")
-        self.gui.thresh_label['text'] = (led_colour + " Threshold")
+        led_colour = self.gui.tracking.colour_to_track.get()
+        self.gui.tracking.ledsize_label['text'] = (led_colour + " Size")
+        self.gui.tracking.thresh_label['text'] = (led_colour + " Threshold")
         
         if led_colour == 'Red':
             channel = 2    
@@ -252,33 +255,30 @@ class tracker_app():
 
 
     def update_led_thresh(self,val):
-        self.led_threshold = int(self.gui.thresh_slider.get())
+        self.led_threshold = int(self.gui.tracking.thresh_slider.get())
         self.cam.led_thresh = self.led_threshold
     
 
     def update_ledsize(self,val):
-        self.ledSize = int(self.gui.ledsize_slider.get())
+        self.ledSize = int(self.gui.tracking.ledsize_slider.get())
     
+    def crop_track(self):
+        print("cropping Track yet to be implemented")
 
     def get_save_dir(self):
         save_directory = filedialog.askdirectory()
-        self.gui.save_dir.set(save_directory)
+        self.gui.experiment.save_dir.set(save_directory)
         
 
     def reset_sessions(self):
         self.session_number = 1
-        
-
-
-
-        
-        
+         
     
     def set_camera_resolution(self,*args):
         """ Sets video camera video resolution and 
             calculates resize factor for display frame  
         """        
-        vid_res_index = self.gui.vid_res_cb.current()
+        vid_res_index = self.gui.aquisition.vid_res_cb.current()
         camera_resolution = self.gui.avaliable_resolutions[vid_res_index]
         
         self.cam.video_resolution = camera_resolution
@@ -293,13 +293,13 @@ class tracker_app():
         """
         if self.session_running: 
             print("stoping_session")
-            self.gui.start_session_button.config(text="Start Session")
+            self.gui.experiment.start_session_button.config(text="Start Session")
             self.session_running = False
             self.session_number += 1
         else:
             self.session_start = datetime.now()
             print("starting session")
-            self.gui.start_session_button.config(text="Stop Session")
+            self.gui.experiment.start_session_button.config(text="Stop Session")
             self.session_running = True
          
     
@@ -308,12 +308,12 @@ class tracker_app():
         """
         if self.rest_running: 
             print("stoping rest")
-            self.gui.start_rest_button.config(text="Start Rest")
+            self.gui.experiment.start_rest_button.config(text="Start Rest")
             self.rest_running = False
         else:
             self.rest_start = datetime.now()
             print("starting rest")
-            self.gui.start_rest_button.config(text="Stop Rest")
+            self.gui.experiment.start_rest_button.config(text="Stop Rest")
             self.rest_running = True
     
     
@@ -325,20 +325,20 @@ class tracker_app():
             self.is_streaming = self.cam.stop_stream()
             
             # Update GUI buttons
-            self.gui.stream_button.configure(text="Start Stream")
-            self.gui.stream_button.configure(state="normal")
-            self.gui.rec_but_state.set(0)
-            self.gui.start_button.configure(text="Record")
-            self.gui.start_button.configure(state="normal")
-            self.gui.stop_button.configure(state="disabled")
-            self.gui.vid_res_cb.configure(state="readonly")
+            self.gui.aquisition.stream_button.configure(text="Start Stream")
+            self.gui.aquisition.stream_button.configure(state="normal")
+            self.gui.aquisition.rec_but_state.set(0)
+            self.gui.aquisition.start_button.configure(text="Record")
+            self.gui.aquisition.start_button.configure(state="normal")
+            self.gui.aquisition.stop_button.configure(state="disabled")
+            self.gui.aquisition.vid_res_cb.configure(state="readonly")
             
             return
         else:    
             # Start the video stream
             self.is_streaming = self.cam.start_stream()
-            self.gui.stream_button.configure(text="Streaming... Press to stop")
-            self.gui.vid_res_cb.configure(state="disabled")
+            self.gui.aquisition.stream_button.configure(text="Streaming... Press to stop")
+            self.gui.aquisition.vid_res_cb.configure(state="disabled")
 
         # if app is streaming, start display update loops
         if self.is_streaming:
@@ -350,7 +350,7 @@ class tracker_app():
         # start the video stream recording
         time_now = datetime.now()
         vid_time_stamp = time_now.strftime("%Y%m%d_%H%M%S")
-        ID_stamp = self.gui.animal_id.get()
+        ID_stamp = self.gui.experiment.animal_id.get()
         session_stamp = str(self.session_number)
         vidname = (ID_stamp + "_Session_" + session_stamp + "_" + vid_time_stamp)
         print("recording video: " + vidname)
@@ -358,12 +358,12 @@ class tracker_app():
         self.cam.start_record()
         
         # update the GUI buttons
-        self.gui.start_button.configure(text="Recording...")
-        self.gui.start_button.configure(state="disabled")
-        self.gui.stream_but_state.set(1)
-        self.gui.stream_button.configure(text="Streaming... Press to stop")
-        self.gui.stop_button.configure(state="normal")
-        self.gui.vid_res_cb.configure(state="disabled")
+        self.gui.aquisition.start_button.configure(text="Recording...")
+        self.gui.aquisition.start_button.configure(state="disabled")
+        self.gui.aquisition.stream_but_state.set(1)
+        self.gui.aquisition.stream_button.configure(text="Streaming... Press to stop")
+        self.gui.aquisition.stop_button.configure(state="normal")
+        self.gui.aquisition.vid_res_cb.configure(state="disabled")
         
         # if the video is not running start the stream
         if not self.cam.running:
@@ -381,10 +381,10 @@ class tracker_app():
     def stop_rec_button(self):         
         self.is_recording = self.cam.stop_record()
 
-        self.gui.start_button.configure(text="Record")
-        self.gui.rec_but_state.set(0)
-        self.gui.start_button.configure(state="normal") 
-        self.gui.stop_button.configure(state="disabled")
+        self.gui.aquisition.start_button.configure(text="Record")
+        self.gui.aquisition.rec_but_state.set(0)
+        self.gui.aquisition.start_button.configure(state="normal") 
+        self.gui.aquisition.stop_button.configure(state="disabled")
     
 
     def update_timers(self):
@@ -402,8 +402,8 @@ class tracker_app():
             else:
                 session_time_string = f"{minutes:02}:{seconds:02}.{hund_millis:01}"
                 
-            self.gui.session_time_label_val['text'] = session_time_string
-            self.gui.session_number_label_val['text'] = (str(self.session_number))
+            self.gui.experiment.session_time_label_val['text'] = session_time_string
+            self.gui.experiment.session_number_label_val['text'] = (str(self.session_number))
         
 
         if self.rest_running:
@@ -420,11 +420,11 @@ class tracker_app():
             else:
                 rest_time_string = f"{minutes:02}:{seconds:02}.{hund_millis:01}"
             
-            self.gui.rest_time_label_val['text'] = rest_time_string   
+            self.gui.experiment.rest_time_label_val['text'] = rest_time_string   
         
         
     def refresher(self):
-        self.gui.fps_string_var.set(f'FPS: {self.cam.fps:.2f}')
+        self.gui.aquisition.fps_string_var.set(f'FPS: {self.cam.fps:.2f}')
         
         if self.is_streaming:
             self.root.after(1000, self.refresher) # every second...    
@@ -442,7 +442,7 @@ class tracker_app():
         self.coords = self.cam.get_coords()
 
         if self.frame is not None: 
-            if self.gui.overlay_position.get():
+            if self.gui.tracking.overlay_position.get():
                 possition_data = self.get_tracked_data()
                 for pos in possition_data:
                     center = (pos[0],pos[1])
@@ -450,16 +450,16 @@ class tracker_app():
                     width = 1
                     self.frame = cv2.circle(self.frame, center, radius, (0, 0, 255), width)
                 
-            if self.gui.frame_to_display.get() == 'LED Mask': 
+            if self.gui.tracking.frame_to_display.get() == 'LED Mask': 
                 self.frame[self.cam.final_mask==255] = self.mask_colour
             
             cv2image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGBA)
             self.last_frame = Image.fromarray(cv2image)
             tk_img = ImageTk.PhotoImage(image=self.last_frame)
             
-            self.gui.video_canvas.tk_img = tk_img
-            self.gui.video_canvas.create_image(0,0, anchor=tk.NW, image=tk_img, tag='video')
-            self.gui.video_canvas.tag_lower('video','all')
+            self.gui.video.video_canvas.tk_img = tk_img
+            self.gui.video.video_canvas.create_image(0,0, anchor=tk.NW, image=tk_img, tag='video')
+            self.gui.video.video_canvas.tag_lower('video','all')
             
         self.update_timers()
 
