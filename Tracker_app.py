@@ -17,7 +17,6 @@ from tkinter import ttk  # Normal Tkinter.* widgets are not themed!
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
-from utils.app_classes import Rectangle
 from utils.tk_gui_class import tk_gui
 
 #from ttkthemes import ThemedTk
@@ -178,8 +177,6 @@ TRACKER CLASS
 
 """
 
-
-
 class tracker_app():
     def __init__(self,master):
         self.root = master
@@ -219,7 +216,6 @@ class tracker_app():
         self.gui.aquisition.vid_res_cb.bind('<<ComboboxSelected>>', self.set_camera_resolution)
         
         self.gui.theme_switch.configure(command= self.change_theme)
-
 
 
     def Led_to_track(self):
@@ -262,8 +258,10 @@ class tracker_app():
     def update_ledsize(self,val):
         self.ledSize = int(self.gui.tracking.ledsize_slider.get())
     
+
     def crop_track(self):
         print("cropping Track yet to be implemented")
+
 
     def get_save_dir(self):
         save_directory = filedialog.askdirectory()
