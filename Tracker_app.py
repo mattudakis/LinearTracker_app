@@ -19,7 +19,6 @@ from PIL import Image, ImageTk
 
 from utils.tk_gui_class import tk_gui
 
-#from ttkthemes import ThemedTk
 
 
 class video_stream():
