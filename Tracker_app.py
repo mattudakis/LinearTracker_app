@@ -237,17 +237,33 @@ class tracker_app():
 
     def change_theme(self):
         if self.root.tk.call("ttk::style", "theme", "use") == "azure-dark":
+            # Set dark theme
+            self.set_light_mode()
+        else:
+            # Set dark theme
+            self.set_dark_mode()
+
+    def set_dark_mode(self):
+        # Set dark theme
+            self.root.tk.call("set_theme", "dark")
+            self.gui.logo_canvas.delete('all')
+            self.gui.logo_canvas.logo_img = self.gui.logo_imgnew_dark
+            self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew_dark)
+            self.gui.logo_canvas.configure(background='#262626')
+            style = ttk.Style()
+            style.configure('Background.TLabel', background = '#262626')
+            self.root.configure(background = '#262626')
+    
+    def set_light_mode(self):
             # Set light theme
             self.root.tk.call("set_theme", "light")
             self.gui.logo_canvas.delete('all')
             self.gui.logo_canvas.logo_img = self.gui.logo_imgnew
             self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew)
-        else:
-            # Set dark theme
-            self.root.tk.call("set_theme", "dark")
-            self.gui.logo_canvas.delete('all')
-            self.gui.logo_canvas.logo_img = self.gui.logo_imgnew_dark
-            self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew_dark)
+            self.gui.logo_canvas.configure(background='#f2f2f2')
+            style = ttk.Style()
+            style.configure('Background.TLabel', background = '#f2f2f2')
+            self.root.configure(background = '#f2f2f2')
 
 
     def select_comport(self,*args):
@@ -476,6 +492,7 @@ class tracker_app():
         self.root.destroy()
 
 
+
    
 if __name__ == "__main__":
     
@@ -486,8 +503,8 @@ if __name__ == "__main__":
     root.tk.call("set_theme", "dark")
     style = ttk.Style()
     style.configure('TCombobox', selectbackground=None, selectforeground=None)
-    
     app = tracker_app(root)
+    app.set_dark_mode()
     
     # update the window and then set the min size for the window to keep geometry
     root.update()

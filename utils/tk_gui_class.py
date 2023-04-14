@@ -20,7 +20,7 @@ class tk_gui():
         self.root = master
         self.root.title("LinearTrack_er")
         
-        self.display_resolution = [640*1.1, 360*1.1]
+        self.display_resolution = [640*1.2, 360*1.2]
         self.is_streaming = False
         self.led_threshold = 50
         self.mask_colour = [0,0,255]
@@ -68,8 +68,8 @@ class tk_gui():
         self.root.columnconfigure( (0,1), weight=1)  
         
         # create a frame at the top of the gui
-        self.top_frame = ttk.Frame(self.root, height=self.viddims[0], width = 1000)
-        self.top_frame.grid(row=0, column=0,sticky = 'nsew',padx=20, pady=(10,5))       
+        self.top_frame = ttk.Frame(self.root, height=self.viddims[0], width = 1000,style='Background.TFrame')
+        self.top_frame.grid(row=0, column=0,sticky = 'nsew',padx=40, pady=(40,0))       
         self.top_frame.columnconfigure((0,1), weight=1)
         self.top_frame.rowconfigure((0,1), weight=1)
         
@@ -79,10 +79,10 @@ class tk_gui():
 
 
         # create a frame at the bottom of the gui
-        self.bottom_frame = ttk.Frame(self.root, height = 500, width = 1000)
-        self.bottom_frame.grid(row=1, column=0,sticky = 'nsew',padx=20, pady=(5,10))
+        self.bottom_frame = ttk.Frame(self.root, height = 500, width = 1000,style='Background.TFrame')
+        self.bottom_frame.grid(row=1, column=0,sticky = 'nsew',padx=40, pady=(0,0))
         self.bottom_frame.columnconfigure((0,1), weight=1)
-        self.bottom_frame.rowconfigure((0,1), weight=1)
+        self.bottom_frame.rowconfigure((0,1,2,3), weight=1)
         
         self.tracking = tracking_pannel(self.bottom_frame)
         self.aquisition = aquisition_pannel(self.bottom_frame, avaliable_resolutions = self.avaliable_resolutions_string)
@@ -130,19 +130,22 @@ class tk_gui():
         logo_img_dark_small = logo_img_dark.resize((220,40))
         self.logo_imgnew_dark = ImageTk.PhotoImage(logo_img_dark_small)
         
-        self.logo_canvas = tk.Canvas(holding_frame , width= 220, height= 50)
+        self.logo_canvas = tk.Canvas(holding_frame , width= 200, height= 50, highlightthickness=0,bg='#262626')
         self.logo_canvas.logo_img = self.logo_imgnew_dark
         self.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.logo_imgnew_dark)
-        self.logo_canvas.grid(row=0, column=1, sticky = 'nsew', padx=(10),pady=(10))
-
+        self.logo_canvas.grid(row=0, column=1, sticky = 'nsew', padx=(10),pady=(10,0))
+        
 
     def setup_theme_widget(self, holding_frame):
         
-        self.theme_frame = ttk.Frame(holding_frame)
+        self.theme_frame = ttk.Frame(self.root)
         self.theme_frame.grid(
-            row=2, 
-            column=2, 
-            sticky = 'ne'
+            row=3, 
+            column=0,
+            columnspan=3,
+            padx=(0,0),
+            pady=(10,0), 
+            sticky = 'new'
             )
         self.theme_switch = ttk.Checkbutton(
             self.theme_frame, 
@@ -152,8 +155,9 @@ class tk_gui():
         self.dark_label = tk.Label(self.theme_frame,text = 'Dark')
         #self.light_label = tk.Label(self.theme_frame,text = 'Light')
         
-        self.dark_label.pack(side='left',padx=0, pady=0)
-        self.theme_switch.pack(side='left',padx=(0,0), pady=0)
+        
+        self.theme_switch.pack(side='right',padx=(0,5), pady=2)
+        self.dark_label.pack(side='right',padx=2, pady=2)
         self.root.iconbitmap("tktheme/theme/logos/tracker_icon.ico")
 
         
@@ -168,8 +172,8 @@ class video_pannel():
 
     def setup_pannel(self):
         # setup the frame to house the webcam video feed and reward zone locations
-        self.video_frame = ttk.Frame(self.holding_frame, width=self.resolution[0], height=self.resolution[1])
-        self.video_frame.grid(row=0, column=0, rowspan=2)
+        self.video_frame = ttk.Frame(self.holding_frame,style='Background.TFrame')
+        self.video_frame.grid(row=0, column=0, rowspan=3, sticky='sew',pady=(0,10))
         
         self.video_canvas = tk.Canvas(self.video_frame, width=self.resolution[0], height=self.resolution[1],bd=0, highlightthickness=0, relief='ridge')
         self.video_canvas.image = self.image
@@ -193,22 +197,45 @@ class tracking_pannel():
 
     def setup_pannel(self):    
 # Frame for tracking controls
-        self.tracking_frame = ttk.Labelframe(
+
+        
+
+        self.tracking_label = ttk.Label(
             self.holding_frame,
-            text='Tracking Controls', 
+            text = "Tracking Controls",
+            font=("Segoe Ui", 10),
+            style='Background.TLabel'
+            )
+        self.tracking_label.grid(
+            row=0, 
+            column=0,  
+            sticky='nw',
+            padx=(0),
+            pady=(5,0)
+            )
+        
+        self.tracking_frame = ttk.Frame(
+            self.holding_frame, 
             height = 150, 
-            width = 250
+            width = 250,
+            style = 'Card.TFrame'
             )
         self.tracking_frame.grid(
-            row=0, 
+            row=1, 
             column=0, 
             columnspan=2, 
-            pady=5, 
+            pady=0,
+            padx=(0,10), 
             sticky = 'nsew'
             )   
-        self.tracking_frame.columnconfigure((0,1,2), weight=1)
+        self.tracking_frame.columnconfigure((0,1,2,3), weight=1)
         self.tracking_frame.rowconfigure((0,1,2,3), weight=1)
         
+   
+        
+        
+
+
         # Overlay tracking position checkbox
         self.overlay_position = tk.IntVar(value=0)
         self.overlay_check = ttk.Checkbutton(
@@ -217,7 +244,7 @@ class tracking_pannel():
             text = 'Overlay Position'
             )
         self.overlay_check.grid(
-            row=2, 
+            row=3, 
             column=0, 
             pady=5, 
             sticky='nsew', 
@@ -233,7 +260,7 @@ class tracking_pannel():
             state='selected'
             )
         self.save_tracking_check.grid(
-            row=2, 
+            row=3, 
             column=1, 
             columnspan=2, 
             sticky='nsew', 
@@ -250,7 +277,7 @@ class tracking_pannel():
             orient = 'horizontal'
             )
         self.thresh_slider.grid(
-            row=0, 
+            row=1, 
             column=0, 
             columnspan=2, 
             sticky='ew', 
@@ -263,7 +290,7 @@ class tracking_pannel():
             text = "Red Threshold"
             )
         self.thresh_label .grid(
-            row=0, 
+            row=1, 
             column=2,
             padx=5, 
             pady=(15,5), 
@@ -279,7 +306,7 @@ class tracking_pannel():
             orient = 'horizontal'
             )
         self.ledsize_slider.grid(
-            row=1, 
+            row=2, 
             column=0, 
             columnspan=2, 
             sticky='ew', 
@@ -291,7 +318,7 @@ class tracking_pannel():
             text = "Red Size"
             )
         self.ledsize_label.grid(
-            row=1, 
+            row=2, 
             column=2, 
             padx=5, 
             pady=5, 
@@ -306,7 +333,7 @@ class tracking_pannel():
             width=12
             )
         self.led_colour_spin.grid(
-            row=0, 
+            row=1, 
             column=3, 
             sticky='ew', 
             pady=(15,5), 
@@ -320,7 +347,7 @@ class tracking_pannel():
             text = 'Tracking Colour'
             )
         self.led_label.grid(
-            row=0, 
+            row=1, 
             column=4, 
             sticky='w', 
             padx=(5,20), 
@@ -335,7 +362,7 @@ class tracking_pannel():
             width=12
             )
         self.frame_cb.grid(
-            row=1, 
+            row=2, 
             column=3, 
             sticky='ew', 
             pady=(5,5), 
@@ -349,7 +376,7 @@ class tracking_pannel():
             text = 'Display Frame'
             )
         self.frame_label.grid(
-            row=1, 
+            row=2, 
             column=4, 
             sticky='w', 
             padx=(5,20),
@@ -363,7 +390,7 @@ class tracking_pannel():
             width=10
             )
         self.crop_button.grid(
-            row=2, 
+            row=3, 
             column=3, 
             columnspan=2, 
             padx=(5,20), 
@@ -383,19 +410,35 @@ class aquisition_pannel():
         self.setup_pannel()
 
     def setup_pannel(self):
-        # Frame for aquisition controls
-        self.aquisition_frame = ttk.Labelframe(
+        
+        self.aqusition_label = ttk.Label(
             self.holding_frame,
-            text='Aquisition Control', 
+            text = "Aquisition Controls",
+            font=("Segoe Ui", 10),
+            style='Background.TLabel'
+            )
+        self.aqusition_label.grid(
+            row=2, 
+            column=0,  
+            sticky='sw',
+            padx=(0),
+            pady=(10,0)
+            )
+
+        
+        # Frame for aquisition controls
+        self.aquisition_frame = ttk.Frame(
+            self.holding_frame,
+            style='Card.TFrame', 
             height = 140, 
             width = 150
             )
         self.aquisition_frame.grid(
-            row=1, 
+            row=3, 
             column=0, 
             sticky = 'nsew', 
-            pady=(10,5), 
-            padx=(0,5)
+            pady=(0,5), 
+            padx=(0,10)
             )
         self.aquisition_frame.columnconfigure((0,1), weight=1)  
         self.aquisition_frame.rowconfigure((0,1,2), weight=1)
@@ -500,18 +543,33 @@ class inscopix_pannel():
         self.setup_pannel()
 
     def setup_pannel(self):
+
+        self.inscopix_label = ttk.Label(
+            self.holding_frame,
+            text = "Inscopix Controls",
+            font=("Segoe Ui", 10),
+            style='Background.TLabel'
+            )
+        self.inscopix_label.grid(
+            row=2, 
+            column=1,  
+            sticky='sw',
+            padx=(10),
+            pady=(0,0)
+            )
+
         # Frame for Inscopix controls 
-        self.inscopix_frame = ttk.Labelframe(
-            self.holding_frame, 
-            text='Inscopix Control',
+        self.inscopix_frame = ttk.Frame(
+            self.holding_frame,
+            style = 'Card.TFrame',
             width = 300
             )
         self.inscopix_frame.grid(
-            row=1, 
+            row=3, 
             column=1, 
             sticky = 'nsew', 
-            pady=(10,5), 
-            padx=(10,0)
+            pady=(0,5), 
+            padx=(10,10)
             )
         
 
@@ -523,8 +581,23 @@ class experiment_pannel():
         self.setup_pannel()
 
     def setup_pannel(self):
-        self.experiment_frame = ttk.Labelframe(self.holding_frame, text='Experiment Control', width = 330)
-        self.experiment_frame.grid(row=0, column=2, rowspan=2, pady=(5,5), padx=(15,5), sticky = 'nsew')
+        
+        self.experiment_label = ttk.Label(
+            self.holding_frame,
+            text = "Experiment Controls",
+            font=("Segoe Ui", 10),
+            style='Background.TLabel'
+            )
+        self.experiment_label.grid(
+            row=0, 
+            column=2,  
+            sticky='nw',
+            padx=(15,5),
+            pady=(5,0)
+            )
+        
+        self.experiment_frame = ttk.Frame(self.holding_frame, style='Card.TFrame', width = 330)
+        self.experiment_frame.grid(row=1, column=2, rowspan=3, pady=(0,5), padx=(15,0), sticky = 'nsew')
 
         self.experiment_frame.columnconfigure((0,1), weight=1)
         self.experiment_frame.rowconfigure((0,1,2,3), weight=1)
@@ -691,7 +764,7 @@ class experiment_pannel():
             column=1, 
             rowspan=3, 
             sticky = 'nsew', 
-            pady=(10,10), 
+            pady=(20,10), 
             padx=(10,20)
             )   
         self.sessions_settings_frame.columnconfigure((0,1), weight=1)
@@ -852,7 +925,8 @@ class experiment_pannel():
         self.reset_button_frame.grid(
             column = 1, 
             row = 3, 
-            pady=(0,0), 
+            pady=(0,2),
+            padx=(0,2), 
             sticky = 'nsew'
             )
         self.reset_button_frame.columnconfigure((0,1), weight=1)
@@ -892,19 +966,33 @@ class arduino_pannel():
         self.setup_pannel()
 
     def setup_pannel(self):
-        self.arduino_frame = ttk.Labelframe(
+        
+        self.arduino_label = ttk.Label(
             self.holding_frame,
-            text='Arduino Control', 
-            height = 320, 
-            width = 200
+            text = "Arduino Controls",
+            font=("Segoe Ui", 10),
+            style='Background.TLabel'
+            )
+        self.arduino_label.grid(
+            row=1, 
+            column=1,  
+            sticky='nw',
+            padx=(10,5),
+            pady=(5,0)
+            ) 
+        
+        
+        self.arduino_frame = ttk.Frame(
+            self.holding_frame, 
+            style='Card.TFrame'
             )
         
         self.arduino_frame.grid(
-            row=1, 
+            row=2, 
             column=1, 
-            padx=(10,5),
-            pady=(5,0), 
-            sticky = 'nsew'
+            padx=(10,0),
+            pady=(0,10), 
+            sticky = 'sew'
             )
         
         self.arduino_frame.columnconfigure((0,1,2), weight=1)
