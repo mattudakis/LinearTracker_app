@@ -22,6 +22,7 @@ namespace eval ttk::theme::azure-light {
         array set colors {
             -fg             "#000000"
             -bg             "#ffffff"
+            -bgframe        "#f2f2f2"
             -disabledfg     "#737373"
             -disabledbg     "#ffffff"
             -selectfg       "#ffffff"
@@ -177,6 +178,10 @@ namespace eval ttk::theme::azure-light {
             Card.field {
                 Card.padding -expand 1 
             }
+        }
+
+        ttk::style layout Background.TFrame {
+            Background.padding -sticky nswe
         }
 
         ttk::style layout TLabelframe {
@@ -517,6 +522,9 @@ namespace eval ttk::theme::azure-light {
         ttk::style element create Card.field image $I(card) \
             -border 10 -padding 4 -sticky news
 
+        # Background Frame
+        ttk::style configure Background.TFrame -background $colors(-bgframe)
+       
         # Labelframe
         ttk::style element create Labelframe.border image $I(card) \
             -border 5 -padding 4 -sticky news

@@ -12,6 +12,7 @@ proc set_theme {mode} {
 		array set colors {
             -fg             "#ffffff"
             -bg             "#333333"
+            -bgframe        "#262626"
             -disabledfg     "#ffffff"
             -disabledbg     "#737373"
             -selectfg       "#ffffff"
@@ -51,6 +52,7 @@ proc set_theme {mode} {
         array set colors {
             -fg             "#000000"
             -bg             "#ffffff"
+            -bgframe        "#f2f2f2"
             -disabledfg     "#737373"
             -disabledbg     "#ffffff"
             -selectfg       "#ffffff"
