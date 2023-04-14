@@ -907,7 +907,7 @@ class arduino_pannel():
             sticky = 'nsew'
             )
         
-        self.arduino_frame.columnconfigure((0,1), weight=1)
+        self.arduino_frame.columnconfigure((0,1,2), weight=1)
         self.arduino_frame.rowconfigure((0,1,2,3,4), weight=1)
 
         # Frame to house session infomration
@@ -918,7 +918,7 @@ class arduino_pannel():
         self.connection_frame.grid(
             row=0, 
             column=0, 
-            columnspan=2, 
+            columnspan=3, 
             sticky = 'n', 
             pady=(20,20), 
             padx=(10,10)
@@ -995,16 +995,107 @@ class arduino_pannel():
             padx=(5, 10), 
             pady=(5, 10),
             )
-        self.seperator = ttk.Separator(self.arduino_frame)
-        self.seperator.grid(
-            row=1, 
-            column=0,
-            columnspan=2,  
-            padx=(25), 
-            pady=(0),
-            sticky='ew'
+
+        self.solnoid_1_label = tk.Label(
+            self.arduino_frame,
+            text = ("Reward Port 1"),
+            font=("Segoe Ui", 12)
+            )
+        self.solnoid_1_label.grid(
+            row=2, 
+            column=0,  
+            padx=(10,0)
+            )
+        self.solnoid_2_label = tk.Label(
+            self.arduino_frame,
+            text = ("Reward Port 2"),
+            font=("Segoe Ui", 12)
+            )
+        self.solnoid_2_label.grid(
+            row=2, 
+            column=2,  
+            padx=(0,10)
             )
 
+        self.seperator = ttk.Separator(self.arduino_frame, orient='vertical')
+        self.seperator.grid(
+            row=3, 
+            column=1,
+            rowspan=3,  
+            padx=(0), 
+            pady=(0),
+            sticky='ns'
+            )
+        
+
+        self.solinoid_1_switch = ttk.Checkbutton(
+            self.arduino_frame, 
+            style='Switch.TCheckbutton'
+            )
+        self.solinoid_1_switch.grid(
+            row=4,
+            column=0,
+            padx=(5,0), 
+            pady=(0,10)
+            )
+        
+        self.solinoid_1_state_label = tk.Label(
+            self.arduino_frame, 
+            text="Closed"
+            )
+        self.solinoid_1_state_label.grid(
+            row=3,
+            column=0,
+            padx=0, 
+            pady=0,
+            sticky='n'
+            )
+        
+
+        self.solinoid_2_switch = ttk.Checkbutton(
+            self.arduino_frame, 
+            style='Switch.TCheckbutton'
+            )
+        self.solinoid_2_switch.grid(
+            row=4,
+            column=2,
+            padx=(5,0), 
+            pady=(0,10)
+            )
+        
+        self.solinoid_2_state_label = tk.Label(
+            self.arduino_frame,
+            text = 'Closed'
+            )
+        self.solinoid_2_state_label.grid(
+            row=3,
+            column=2,
+            padx=0, 
+            pady=0,
+            sticky='n'
+            )
+        
+        self.solinoid_1_button = ttk.Button(
+            self.arduino_frame,
+            text="Trigger\nReward 1" 
+            )
+        self.solinoid_1_button .grid(
+            row=5, 
+            column=0,  
+            padx=(10, 0), 
+            pady=(5, 20),
+            )
+        
+        self.solinoid_2_button = ttk.Button(
+            self.arduino_frame,
+            text="Trigger\nReward 2" 
+            )
+        self.solinoid_2_button.grid(
+            row=5, 
+            column=2,  
+            padx=(0, 10), 
+            pady=(5, 20),
+            )
 
     def get_com_ports(self):
         
