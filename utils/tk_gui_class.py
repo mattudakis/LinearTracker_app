@@ -8,6 +8,7 @@ import cv2
 import tkinter as tk
 from tkinter import ttk  
 from PIL import Image, ImageTk
+import serial.tools.list_ports
 
 from utils.app_classes import Rectangle
 
@@ -882,11 +883,12 @@ class experiment_pannel():
             sticky='nsew'
             )
         
-
+        
 
 class arduino_pannel():
     def __init__(self, holding_frame):
         self.holding_frame = holding_frame
+        self.get_com_ports()
         self.setup_pannel()
 
     def setup_pannel(self):
@@ -904,3 +906,114 @@ class arduino_pannel():
             pady=(5,0), 
             sticky = 'nsew'
             )
+        
+        self.arduino_frame.columnconfigure((0,1), weight=1)
+        self.arduino_frame.rowconfigure((0,1,2,3,4), weight=1)
+
+        # Frame to house session infomration
+        self.connection_frame = ttk.Frame(
+            self.arduino_frame,
+            style='Card.TFrame'
+            )
+        self.connection_frame.grid(
+            row=0, 
+            column=0, 
+            columnspan=2, 
+            sticky = 'n', 
+            pady=(20,20), 
+            padx=(10,10)
+            )
+        self.connection_frame.columnconfigure((0,1), weight=1)
+        self.connection_frame.rowconfigure((0,1,2,3,4), weight=1)
+
+
+        #session number text and value
+        self.arduino_label = tk.Label(
+            self.connection_frame,
+            text = ("Arduino Connection"),
+            font=("Segoe Ui", 12)
+            )
+        self.arduino_label.grid(
+            row=0, 
+            column=0,
+            columnspan=2, 
+            pady=5, 
+            padx=10
+            )
+
+        self.comport_selected = tk.StringVar()
+        self.serial_port_cb = ttk.Combobox(
+            self.connection_frame,
+            textvariable=self.comport_selected,
+            width=10
+            )
+        self.serial_port_cb.grid(
+            row=1, 
+            column=0,
+            columnspan=2, 
+            pady=5, 
+            padx=10
+            )
+        
+        self.serial_port_cb['values'] = self.comports_avaliable
+        self.serial_port_cb['state'] = 'readonly'
+        self.serial_port_cb.set(self.comports_avaliable[0])
+
+                #session number text and value
+        self.arduino_connect_label = tk.Label(
+            self.connection_frame,
+            text = ("Select Arduino COM port"),
+            font=("Segoe Ui", 10)
+            )
+        self.arduino_connect_label.grid(
+            row=2, 
+            column=0,
+            columnspan=2,  
+            padx=10
+            )
+                # Reset session button
+        self.arduino_connect_button = ttk.Button(
+            self.connection_frame,
+            text="Connect" 
+            )
+        self.arduino_connect_button.grid(
+            row=3, 
+            column=0,  
+            padx=(10, 5), 
+            pady=(5, 10),
+            )
+        
+        # Reset rest button
+        self.arduino_disconnect_button = ttk.Button(
+            self.connection_frame,
+            text="Disconnect",
+            state="disabled"
+            )
+        self.arduino_disconnect_button.grid(
+            row=3, 
+            column=1,  
+            padx=(5, 10), 
+            pady=(5, 10),
+            )
+        self.seperator = ttk.Separator(self.arduino_frame)
+        self.seperator.grid(
+            row=1, 
+            column=0,
+            columnspan=2,  
+            padx=(25), 
+            pady=(0),
+            sticky='ew'
+            )
+
+
+    def get_com_ports(self):
+        
+        self.comports = serial.tools.list_ports.comports()
+
+        self.comport_described = []
+        self.comports_avaliable = []
+        for port in sorted(self.comports):
+            display_string = (str(port.name) + ": " + str(port.description[:-7]))
+            self.comport_described.append(display_string)    
+            self.comports_avaliable.append(str(port.name))
+            #print(display_string)
