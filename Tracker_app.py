@@ -214,6 +214,7 @@ class tracker_app():
         self.gui.aquisition.stop_button.configure(command= self.stop_rec_button)
         self.gui.aquisition.vid_res_cb.bind('<<ComboboxSelected>>', self.set_camera_resolution)
         
+        self.gui.arduino.serial_port_cb.bind('<<ComboboxSelected>>', self.select_comport)
         self.gui.theme_switch.configure(command= self.change_theme)
 
 
@@ -248,6 +249,12 @@ class tracker_app():
             self.gui.logo_canvas.logo_img = self.gui.logo_imgnew_dark
             self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew_dark)
 
+
+    def select_comport(self,*args):
+        self.gui.arduino.serial_port_cb.current()
+        port_index = self.gui.arduino.serial_port_cb.current()
+        self.selected_comport = self.gui.arduino.comports_avaliable[port_index]
+        print("this is the selected comport: " + self.selected_comport)
 
     def update_led_thresh(self,val):
         self.led_threshold = int(self.gui.tracking.thresh_slider.get())
