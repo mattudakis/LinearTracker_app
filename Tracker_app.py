@@ -314,17 +314,26 @@ class tracker_app():
     def open_close_port(self,port):
         if port == 1:
           if self.gui.arduino.solinoid_switch_1_val.get():
-              try: self.arduino_serial.write(b'3')
+              try: 
+                  self.arduino_serial.write(b'3')
+                  self.gui.arduino.solinoid_1_state_label.configure(text="Open")
               except: print("No Connected Arduino")
           else:
-              try: self.arduino_serial.write(b'4')
+              try: 
+                  self.arduino_serial.write(b'4')
+                  self.gui.arduino.solinoid_1_state_label.configure(text="Closed")
               except: print("No Connected Arduino")
         elif port == 2:
           if self.gui.arduino.solinoid_switch_2_val.get():
-              try: self.arduino_serial.write(b'5')
+              try: 
+                  self.arduino_serial.write(b'5')
+                  self.gui.arduino.solinoid_2_state_label.configure(text="Open")
+
               except: print("No Connected Arduino")
           else:
-              try: self.arduino_serial.write(b'6')
+              try: 
+                  self.arduino_serial.write(b'6')
+                  self.gui.arduino.solinoid_2_state_label.configure(text="Closed")
               except: print("No Connected Arduino")
                   
                    

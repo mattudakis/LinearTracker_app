@@ -554,7 +554,7 @@ class inscopix_pannel():
             row=2, 
             column=1,  
             sticky='sw',
-            padx=(10),
+            padx=(15),
             pady=(0,0)
             )
 
