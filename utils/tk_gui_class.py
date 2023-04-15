@@ -456,7 +456,7 @@ class aquisition_pannel():
             column=0, 
             columnspan=2, 
             padx=(20, 20), 
-            pady=(10, 10), 
+            pady=(20, 10), 
             ipady=5,
             sticky='nsew'
             )
@@ -473,7 +473,7 @@ class aquisition_pannel():
             row=1, 
             column=0, 
             padx=(20,10), 
-            pady=(5,20), 
+            pady=(5,15), 
             ipady=5,
             sticky='nsew'
             )
@@ -488,7 +488,7 @@ class aquisition_pannel():
             row=1, 
             column=1,
             padx=(10,20), 
-            pady=(5,20), 
+            pady=(5,15), 
             ipady=5,
             sticky='nsew'
             )
@@ -569,7 +569,7 @@ class inscopix_pannel():
             column=1, 
             sticky = 'nsew', 
             pady=(0,5), 
-            padx=(10,10)
+            padx=(15,10)
             )
         
 
@@ -1115,10 +1115,11 @@ class arduino_pannel():
             sticky='ns'
             )
         
-
+        self.solinoid_switch_1_val = tk.IntVar(value=0)
         self.solinoid_1_switch = ttk.Checkbutton(
             self.arduino_frame, 
-            style='Switch.TCheckbutton'
+            style='Switch.TCheckbutton',
+            variable=self.solinoid_switch_1_val
             )
         self.solinoid_1_switch.grid(
             row=4,
@@ -1139,10 +1140,11 @@ class arduino_pannel():
             sticky='n'
             )
         
-
+        self.solinoid_switch_2_val = tk.IntVar(value=0)
         self.solinoid_2_switch = ttk.Checkbutton(
             self.arduino_frame, 
-            style='Switch.TCheckbutton'
+            style='Switch.TCheckbutton',
+            variable=self.solinoid_switch_2_val
             )
         self.solinoid_2_switch.grid(
             row=4,

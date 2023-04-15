@@ -11,6 +11,7 @@ import threading
 import os 
 import time
 from datetime import datetime
+import serial
 
 import tkinter as tk
 from tkinter import ttk  # Normal Tkinter.* widgets are not themed!
@@ -189,6 +190,7 @@ class tracker_app():
         self.rest_running = False
         self.session_start = 0
         self.session_number = 1
+        self.arduino_serial = []
         
         self.possition_array = np.zeros((50,2),dtype=int)
         
@@ -215,6 +217,13 @@ class tracker_app():
         self.gui.aquisition.vid_res_cb.bind('<<ComboboxSelected>>', self.set_camera_resolution)
         
         self.gui.arduino.serial_port_cb.bind('<<ComboboxSelected>>', self.select_comport)
+        self.gui.arduino.arduino_connect_button.configure(command=self.connect_to_serial)
+        self.gui.arduino.arduino_disconnect_button.configure(command=self.disconnect_serial)
+        self.gui.arduino.solinoid_1_button.configure(command=lambda: self.trigger_reward(port=1))
+        self.gui.arduino.solinoid_2_button.configure(command=lambda: self.trigger_reward(port=2))
+        self.gui.arduino.solinoid_1_switch.configure(command=lambda: self.open_close_port(port=1))
+        self.gui.arduino.solinoid_2_switch.configure(command=lambda: self.open_close_port(port=2))
+
         self.gui.theme_switch.configure(command= self.change_theme)
 
 
@@ -265,12 +274,68 @@ class tracker_app():
             style.configure('Background.TLabel', background = '#f2f2f2')
             self.root.configure(background = '#f2f2f2')
 
+    def connect_to_serial(self):
+        serial_port = self.select_comport()
+        try:
+            self.arduino_serial = serial.Serial(serial_port, 9600)
+            time.sleep(1)
+            print("Arduino connected")
+        
+            if self.arduino_serial.is_open:
+                self.gui.arduino.arduino_connect_label.configure(
+                    text=("Connected to Ardunio at: " + serial_port)
+                    )
+                self.gui.arduino.arduino_connect_button.configure(state="disabled")
+                self.gui.arduino.arduino_disconnect_button.configure(state="normal")
+                self.gui.arduino.serial_port_cb.configure(state="disabled")
+        except:
+            print("Failed to connect to arduino \n Check you have the correct COM port \n and that it is not in use.")
+
+
+    def disconnect_serial(self): 
+        try: 
+            self.arduino_serial.close()
+            self.gui.arduino.arduino_connect_button.configure(state="normal")
+            self.gui.arduino.arduino_disconnect_button.configure(state="disabled")
+            self.gui.arduino.arduino_connect_label.configure(text=("Select Arduino COM port"))
+            self.gui.arduino.serial_port_cb.configure(state="readonly")
+            print("Arduino disconnected")
+        except:
+            print("No Connected Arduino")
+    
+        
+    def trigger_reward(self,port):
+        try:
+            self.arduino_serial.write(str(port).encode())
+            print("Reward " + str(port) + " delivered")
+        except:
+            print("No Connected Arduino")
+
+    def open_close_port(self,port):
+        if port == 1:
+          if self.gui.arduino.solinoid_switch_1_val.get():
+              try: self.arduino_serial.write(b'3')
+              except: print("No Connected Arduino")
+          else:
+              try: self.arduino_serial.write(b'4')
+              except: print("No Connected Arduino")
+        elif port == 2:
+          if self.gui.arduino.solinoid_switch_2_val.get():
+              try: self.arduino_serial.write(b'5')
+              except: print("No Connected Arduino")
+          else:
+              try: self.arduino_serial.write(b'6')
+              except: print("No Connected Arduino")
+                  
+                   
 
     def select_comport(self,*args):
         self.gui.arduino.serial_port_cb.current()
         port_index = self.gui.arduino.serial_port_cb.current()
         self.selected_comport = self.gui.arduino.comports_avaliable[port_index]
-        print("this is the selected comport: " + self.selected_comport)
+        print("Selected " + self.gui.arduino.comport_described[port_index])
+        return self.selected_comport
+    
 
     def update_led_thresh(self,val):
         self.led_threshold = int(self.gui.tracking.thresh_slider.get())
