@@ -891,7 +891,7 @@ class experiment_pannel():
         self.saving_frame.rowconfigure((0,1), weight=1)
         
         # Save directory input box 
-        self.save_dir = tk.StringVar(self.saving_frame ,"C:/temp ")
+        self.save_dir = tk.StringVar(self.saving_frame ,"C:/temp")
         self.save_dir_input = ttk.Entry(
             self.saving_frame,
             textvariable= self.save_dir, 

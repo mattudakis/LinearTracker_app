@@ -7,8 +7,10 @@ Created on Fri Mar  3 12:44:54 2023
 
 import cv2
 import numpy as np
+import csv
 import threading
-import os 
+import os
+from pathlib import Path 
 import time
 from datetime import datetime
 import serial
@@ -49,15 +51,17 @@ class video_stream():
         # fourcc settings needs to be after all other settings for it to work?! - might be due to opencv backend being ffmpeg
         self.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G")) # This is important to maintain higher FPS with higer resolution video
         
-        frame_count = 0
+        self.frame_count = 0
         start = time.time()
         
         while self.running:
             self.ret, self.frame =  self.capture.read()
 
             if self.ret:
-                frame_count += 1
+                self.frame_count += 1
                 self.frame = cv2.flip(self.frame, 1)
+                self.timestamp = time.time()
+                self.frame_timestamp = self.timestamp-start
                 
                 if self.recording:
                     self.video_writer.write(self.frame)
@@ -71,9 +75,13 @@ class video_stream():
                                                 ),)
                 self.find_position()
                 self.process_position()
+
+                if app.gui.tracking.save_tracking.get():
+                    self.save_data()
+
                 
                 self.elapsed = now-start
-                self.fps = round(frame_count / self.elapsed,2)
+                self.fps = round(self.frame_count / self.elapsed,2)
                      
         self.capture.release()
         #self.video_writer.release()
@@ -92,7 +100,7 @@ class video_stream():
     def start_record(self):
         vid_w = self.video_resolution[0]
         vid_h = self.video_resolution[1]
-        vid_name = (self.vid_tag+".avi")
+        vid_name = (self.vid_tag + ".avi")
         fourcc = cv2.VideoWriter_fourcc("M", "J", "P", "G")
         self.video_writer = cv2.VideoWriter(vid_name,fourcc , 30, (vid_w, vid_h))
         self.recording = True
@@ -168,8 +176,25 @@ class video_stream():
             zone_occupied = min(zone_occupied) #if there are multi zones occupied take the lowest one
             
             print(f"Zone {zone_occupied} occupied")
-      
     
+    def save_data(self):
+        
+        logging_filename = app.logging_csv
+        if not os.path.exists(logging_filename):
+            with open(logging_filename, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording'])  # Write header
+
+        # Append data to the CSV file
+        with open(logging_filename, 'a', newline='') as file:
+            walltime = datetime.fromtimestamp(self.timestamp)
+            writer = csv.writer(file)
+            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording])
+        
+
+        # here we would also put the logic for the task and call functions from 
+        # the app such as trigger reward. will also need to get bools from the app class
+        # 
 """ 
 
 TRACKER CLASS
@@ -359,6 +384,26 @@ class tracker_app():
         print("cropping Track yet to be implemented")
 
 
+    def get_file_name(self, type):
+        
+        time_now = datetime.now()
+        time_stamp = time_now.strftime("%Y%m%d_%H%M%S")
+        ID_stamp = self.gui.experiment.animal_id.get()
+        session_stamp = str(self.session_number)
+        name = (ID_stamp + "_Session_" + session_stamp + "_" + time_stamp)
+        
+        if type == "video":
+            name = name + "_behaveVid"
+        
+        if type == "logging":
+            name = name + "_Trackeddata.csv"
+        
+        save_dir = Path(self.gui.experiment.save_dir.get())
+        vidname = str(save_dir / name)
+        
+        return vidname
+        
+
     def get_save_dir(self):
         save_directory = filedialog.askdirectory()
         self.gui.experiment.save_dir.set(save_directory)
@@ -434,6 +479,9 @@ class tracker_app():
             self.gui.aquisition.stream_button.configure(text="Streaming... Press to stop")
             self.gui.aquisition.vid_res_cb.configure(state="disabled")
 
+            self.logging_csv = self.get_file_name("logging")
+
+
         # if app is streaming, start display update loops
         if self.is_streaming:
             self.update_frame()
@@ -442,11 +490,7 @@ class tracker_app():
     
     def start_rec_button(self):         
         # start the video stream recording
-        time_now = datetime.now()
-        vid_time_stamp = time_now.strftime("%Y%m%d_%H%M%S")
-        ID_stamp = self.gui.experiment.animal_id.get()
-        session_stamp = str(self.session_number)
-        vidname = (ID_stamp + "_Session_" + session_stamp + "_" + vid_time_stamp)
+        vidname = self.get_file_name("video")
         print("recording video: " + vidname)
         self.cam.vid_tag = vidname
         self.cam.start_record()
