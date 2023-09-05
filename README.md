@@ -2,11 +2,15 @@
 ![Trackerlogo](media/trackerlogo1.png#gh-light-mode-only)
 
 
-`Desktop app for real-time tracking and experimental control - developed using python, opencv and tkinter`
+**Desktop app for real-time tracking and experimental control - developed using Python, OpenCV and tkinter**
 
-Custom software that will record and track the position of a rodent via tracking LEDs attached to the rodent.
-
-Custom ROIs added to the video feed can trigger experiment contingencies such as reward delivery and optogenetic stimulation via a serial connection to an Arduino or other microcontroller.
+>
+> :small_blue_diamond: Record and track the position of a rodent via detection of rodent-mounted LED.
+> 
+> :small_blue_diamond: Reward delivery and optogenetic stimulation can be triggered when the rodent enters ROI zones
+> 
+> :small_blue_diamond: Serial connection to an Arduino can trigger hardware, such as optogenetic lasers/reward valves.
+>
 
 &nbsp;
 
