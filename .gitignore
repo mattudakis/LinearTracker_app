@@ -5,3 +5,4 @@ misc/
 __pycache__/
 tktheme/example.py
 tktheme/README.md
+.venv

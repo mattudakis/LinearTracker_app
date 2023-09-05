@@ -43,7 +43,7 @@ class tk_gui():
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, low_res[1])
         ret, frame =  capture.read()
         
-        frame = cv2.flip(frame, 1)
+        #frame = cv2.flip(frame, 1)
         
         self.frame_resize_factor = [(low_res[0]/self.display_resolution[0]),(low_res[1]/self.display_resolution[1])]
         frame_resized = cv2.resize(frame, (int(frame.shape[1] / self.frame_resize_factor[1]),int(frame.shape[0] / self.frame_resize_factor[0]),),)
@@ -69,9 +69,9 @@ class tk_gui():
         
         # create a frame at the top of the gui
         self.top_frame = ttk.Frame(self.root, height=self.viddims[0], width = 1000,style='Background.TFrame')
-        self.top_frame.grid(row=0, column=0,sticky = 'nsew',padx=40, pady=(40,0))       
+        self.top_frame.grid(row=0, column=0,sticky = 'nsew',padx=40, pady=(20,0))       
         self.top_frame.columnconfigure((0,1), weight=1)
-        self.top_frame.rowconfigure((0,1), weight=1)
+        self.top_frame.rowconfigure((0,1,2,3), weight=1)
         
         self.video = video_pannel(self.top_frame,resolution = self.display_resolution,initial_img = self.tk_img)
         self.arduino = arduino_pannel(self.top_frame)
@@ -130,10 +130,10 @@ class tk_gui():
         logo_img_dark_small = logo_img_dark.resize((220,40))
         self.logo_imgnew_dark = ImageTk.PhotoImage(logo_img_dark_small)
         
-        self.logo_canvas = tk.Canvas(holding_frame , width= 200, height= 50, highlightthickness=0,bg='#262626')
+        self.logo_canvas = tk.Canvas(holding_frame , width= 200, height= 0, highlightthickness=0,bg='#262626')
         self.logo_canvas.logo_img = self.logo_imgnew_dark
-        self.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.logo_imgnew_dark)
-        self.logo_canvas.grid(row=0, column=1, sticky = 'nsew', padx=(10),pady=(10,0))
+        self.logo_canvas.create_image(5,5,anchor=tk.SW, image=self.logo_imgnew_dark)
+        self.logo_canvas.grid(row=0, column=1, sticky = 'sew', padx=(10),pady=(0,0),ipady=30)
         
 
     def setup_theme_widget(self, holding_frame):
@@ -173,7 +173,7 @@ class video_pannel():
     def setup_pannel(self):
         # setup the frame to house the webcam video feed and reward zone locations
         self.video_frame = ttk.Frame(self.holding_frame,style='Background.TFrame')
-        self.video_frame.grid(row=0, column=0, rowspan=3, sticky='sew',pady=(0,10))
+        self.video_frame.grid(row=0, column=0, rowspan=4, sticky='sew',pady=(0,10))
         
         self.video_canvas = tk.Canvas(self.video_frame, width=self.resolution[0], height=self.resolution[1],bd=0, highlightthickness=0, relief='ridge')
         self.video_canvas.image = self.image
@@ -181,9 +181,9 @@ class video_pannel():
         self.video_canvas.tag_lower('video','all')
         self.video_canvas.grid(row=0, column=0)
         
-        r1 = Rectangle(self.video_canvas, 100, 170, 180, 250)
-        r2 = Rectangle(self.video_canvas, 180, 190, 580, 230)
-        r3 = Rectangle(self.video_canvas, 580, 170, 660, 250)
+        r1 = Rectangle(self.video_canvas, 140, 145, 200, 205)
+        r2 = Rectangle(self.video_canvas, 201, 162, 589, 192)
+        r3 = Rectangle(self.video_canvas, 590, 145, 650, 205)
 
         self.zones = [r1, r2, r3]
 
@@ -198,7 +198,6 @@ class tracking_pannel():
     def setup_pannel(self):    
 # Frame for tracking controls
 
-        
 
         self.tracking_label = ttk.Label(
             self.holding_frame,
@@ -209,9 +208,8 @@ class tracking_pannel():
         self.tracking_label.grid(
             row=0, 
             column=0,  
-            sticky='nw',
-            padx=(0),
-            pady=(5,0)
+            sticky="nw",
+            ipady=6
             )
         
         self.tracking_frame = ttk.Frame(
@@ -421,8 +419,7 @@ class aquisition_pannel():
             row=2, 
             column=0,  
             sticky='sw',
-            padx=(0),
-            pady=(10,0)
+            ipady=6
             )
 
         
@@ -498,7 +495,8 @@ class aquisition_pannel():
         self.vid_res_frame.grid(
             row=2, 
             column=0, 
-            columnspan=2
+            columnspan=2,
+            pady=(0,2)
             )
         
         # Video resolution selector spinbox
@@ -512,7 +510,7 @@ class aquisition_pannel():
             row=0, 
             column=1, 
             sticky='s', 
-            pady=5, 
+            pady=(0,5), 
             padx=0
             )
         self.vid_res_cb['values'] = self.avaliable_resolutions
@@ -555,7 +553,7 @@ class inscopix_pannel():
             column=1,  
             sticky='sw',
             padx=(15),
-            pady=(0,0)
+            ipady=6
             )
 
         # Frame for Inscopix controls 
@@ -593,7 +591,7 @@ class experiment_pannel():
             column=2,  
             sticky='nw',
             padx=(15,5),
-            pady=(5,0)
+            ipady=6
             )
         
         self.experiment_frame = ttk.Frame(self.holding_frame, style='Card.TFrame', width = 330)
@@ -846,7 +844,7 @@ class experiment_pannel():
             row=2, 
             column=0,
             columnspan=2, 
-            pady=5, 
+            ipady=5, 
             sticky='w', 
             padx=(10,5)
             )
@@ -902,7 +900,8 @@ class experiment_pannel():
             column=0, 
             columnspan=2, 
             sticky = 'nsew', 
-            pady=(5,5), 
+            pady=(5,5),
+            ipady = 4, 
             padx=(10,10)
             )
         
@@ -916,7 +915,7 @@ class experiment_pannel():
             column=0, 
             columnspan=2,  
             padx=(40, 30), 
-            pady=(0, 5), 
+            ipady= 5, 
             sticky='nsew'
             )
         
@@ -978,7 +977,8 @@ class arduino_pannel():
             column=1,  
             sticky='nw',
             padx=(10,5),
-            pady=(5,0)
+            pady=(0,0),
+            ipady=6
             ) 
         
         
@@ -989,9 +989,10 @@ class arduino_pannel():
         
         self.arduino_frame.grid(
             row=2, 
-            column=1, 
+            column=1,
+            rowspan=2, 
             padx=(10,0),
-            pady=(0,10), 
+            pady=(5,10), 
             sticky = 'sew'
             )
         
@@ -1125,7 +1126,7 @@ class arduino_pannel():
             row=4,
             column=0,
             padx=(5,0), 
-            pady=(0,10)
+            ipady=5
             )
         
         self.solinoid_1_state_label = tk.Label(
@@ -1150,7 +1151,7 @@ class arduino_pannel():
             row=4,
             column=2,
             padx=(5,0), 
-            pady=(0,10)
+            ipady=5
             )
         
         self.solinoid_2_state_label = tk.Label(

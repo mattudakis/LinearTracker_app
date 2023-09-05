@@ -12,7 +12,7 @@ class Rectangle:
         self.x2 = x2
         self.y1 = y1
         self.y2 = y2
-        self.id = canvas.create_rectangle(x1, y1, x2, y2, width=2, outline="red",activefill='#007fff')
+        self.id = canvas.create_rectangle(x1, y1, x2, y2, width=1.5, outline='#3cdfff', activedash=(7,),activewidth = 5)
         self.active = False
         self.selected_corner = None
         self.canvas.tag_bind(self.id, '<Button-1>', self.on_button_press)

@@ -13,7 +13,7 @@ proc set_theme {mode} {
             -fg             "#ffffff"
             -bg             "#333333"
             -bgframe        "#262626"
-            -disabledfg     "#ffffff"
+            -disabledfg     "#aaaaaa"
             -disabledbg     "#737373"
             -selectfg       "#ffffff"
             -selectbg       "#007fff"

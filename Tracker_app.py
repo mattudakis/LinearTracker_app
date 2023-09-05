@@ -49,7 +49,7 @@ class video_stream():
         #self.capture.set(cv2.CAP_PROP_EXPOSURE, -3) # Setting the exposure on logitech cameras is often important as the frame rate drops if exposure is too high.
         #self.capture.set(cv2.CAP_PROP_SETTINGS, 0) # Use this to get camera settings for the webcam. (might include this into a menu option)
         # fourcc settings needs to be after all other settings for it to work?! - might be due to opencv backend being ffmpeg
-        self.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G")) # This is important to maintain higher FPS with higer resolution video
+        self.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G")) # This is important to maintain higher FPS with higer resolution video for this to work must have ffmpeg installed
         
         self.frame_count = 0
         start = time.time()
@@ -59,7 +59,7 @@ class video_stream():
 
             if self.ret:
                 self.frame_count += 1
-                self.frame = cv2.flip(self.frame, 1)
+                #self.frame = cv2.flip(self.frame, 1)
                 self.timestamp = time.time()
                 self.frame_timestamp = self.timestamp-start
                 
@@ -292,12 +292,13 @@ class tracker_app():
             # Set light theme
             self.root.tk.call("set_theme", "light")
             self.gui.logo_canvas.delete('all')
-            self.gui.logo_canvas.logo_img = self.gui.logo_imgnew
-            self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew)
-            self.gui.logo_canvas.configure(background='#f2f2f2')
             style = ttk.Style()
             style.configure('Background.TLabel', background = '#f2f2f2')
             self.root.configure(background = '#f2f2f2')
+            self.gui.logo_canvas.logo_img = self.gui.logo_imgnew
+            self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew)
+            self.gui.logo_canvas.configure(background='#f2f2f2')
+
 
     def connect_to_serial(self):
         serial_port = self.select_comport()
@@ -629,7 +630,7 @@ if __name__ == "__main__":
     root.minsize(root.winfo_width(), root.winfo_height())
     x_cordinate = int((root.winfo_screenwidth() / 2) - (root.winfo_width() / 2))
     y_cordinate = int((root.winfo_screenheight() / 2) - (root.winfo_height() / 2))
-    root.geometry("+{}+{}".format(x_cordinate, y_cordinate-20))
+    root.geometry("+{}+{}".format(x_cordinate, y_cordinate-50))
     
     root.mainloop()
 

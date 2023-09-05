@@ -4,16 +4,16 @@ Used for LinearTrack_er app to prototype
 connect an LED to digital pin 12 and 13
 */
 
-int led_1_pin       = 12;
-int led_2_pin       = 13;
+int led_pin_1       = 10;
+int led_pin_2       = 13;
 
-int openTime1 = 250;
+int openTime1 = 50;
 int incomingByte;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  pinMode(led_1_pin , OUTPUT);
-  pinMode(led_2_pin , OUTPUT);
+  pinMode(led_pin_1 , OUTPUT);
+  pinMode(led_pin_2 , OUTPUT);
   
   Serial.begin(9600); //open serial port and set rate to 9600 baud
 
@@ -37,7 +37,7 @@ void loop() {
       if (incomingByte == '2') {
           digitalWrite(led_pin_2, HIGH);
           delay(openTime1);
-          digitalWrite(led_pin_2, LOW)
+          digitalWrite(led_pin_2, LOW);
           break;
           }
           
