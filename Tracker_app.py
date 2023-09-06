@@ -46,8 +46,8 @@ class video_stream():
         self.capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, vid_w)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, vid_h)
-        #self.capture.set(cv2.CAP_PROP_EXPOSURE, -3) # Setting the exposure on logitech cameras is often important as the frame rate drops if exposure is too high.
-        #self.capture.set(cv2.CAP_PROP_SETTINGS, 0) # Use this to get camera settings for the webcam. (might include this into a menu option)
+        #self.capture.set(cv2.CAP_PROP_EXPOSURE, -6) # Setting the exposure on logitech cameras is often important as the frame rate drops if exposure is too high.
+        self.capture.set(cv2.CAP_PROP_SETTINGS, 0) # Use this to get camera settings for the webcam. (might include this into a menu option)
         # fourcc settings needs to be after all other settings for it to work?! - might be due to opencv backend being ffmpeg
         self.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G")) # This is important to maintain higher FPS with higer resolution video for this to work must have ffmpeg installed
         
@@ -76,8 +76,8 @@ class video_stream():
                 self.find_position()
                 self.process_position()
 
-                if app.gui.tracking.save_tracking.get():
-                    self.save_data()
+                #if app.gui.tracking.save_tracking.get():
+                #    self.save_data()
 
                 
                 self.elapsed = now-start
@@ -596,6 +596,7 @@ class tracker_app():
             self.last_frame = Image.fromarray(cv2image)
             tk_img = ImageTk.PhotoImage(image=self.last_frame)
             
+            self.gui.video.video_canvas.delete('video') # This is important otherwise the GUI slows down as images are stacked ontop of each other
             self.gui.video.video_canvas.tk_img = tk_img
             self.gui.video.video_canvas.create_image(0,0, anchor=tk.NW, image=tk_img, tag='video')
             self.gui.video.video_canvas.tag_lower('video','all')
@@ -603,7 +604,7 @@ class tracker_app():
         self.update_timers()
 
         if self.is_streaming:
-            self.root.after(10, self.update_frame)
+            self.root.after(15, self.update_frame)
             
 
     def closeWindow(self):
