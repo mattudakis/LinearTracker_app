@@ -577,9 +577,12 @@ class experiment_pannel():
         self.holding_frame = holding_frame
         self.session_number = 1
         self.setup_pannel()
+        
 
     def setup_pannel(self):
         
+        
+
         self.experiment_label = ttk.Label(
             self.holding_frame,
             text = "Experiment Controls",
@@ -602,10 +605,12 @@ class experiment_pannel():
         
         
         # start session button
+        self.session_but_state = tk.IntVar(value=0)
         self.start_session_button = ttk.Checkbutton(
             self.experiment_frame, 
             text="Start Session", 
-            style="Toggle.TButton" 
+            style="Toggle.TButton", 
+            variable=self.session_but_state
             )
         self.start_session_button.grid(
             row=0, 
@@ -616,10 +621,12 @@ class experiment_pannel():
             )
         
         #start rest button
+        self.rest_but_state = tk.IntVar(value=0)
         self.start_rest_button = ttk.Checkbutton(
             self.experiment_frame,
             text="Start rest", 
             style="Toggle.TButton",
+            variable=self.rest_but_state
             )
         self.start_rest_button.grid(
             row=1, 
@@ -781,6 +788,9 @@ class experiment_pannel():
         self.length_frame.columnconfigure((0,1), weight=1)
         self.length_frame.rowconfigure((0,1,2), weight=1)
 
+        
+        self.vcmd = (self.experiment_frame.register(self.onValidate))
+
         # Session length text and value
         self.session_length_label = tk.Label(
             self.length_frame,
@@ -790,8 +800,11 @@ class experiment_pannel():
         self.session_length_input = ttk.Entry(
             self.length_frame,
             textvariable= self.session_len, 
-            width = 5
+            width = 5,
+            validate="key",
+            validatecommand = (self.vcmd, '%P')
             )
+        
         self.session_length_label.grid(
             row=0, 
             column=0, 
@@ -816,7 +829,9 @@ class experiment_pannel():
         self.rest_length_input = ttk.Entry(
             self.length_frame,
             textvariable= self.rest_len, 
-            width = 5
+            width = 5,
+            validate="key",
+            validatecommand = (self.vcmd, '%P')
             )
         self.rest_length_label.grid(
             row=1, 
@@ -955,7 +970,15 @@ class experiment_pannel():
             pady=(10, 20),
             sticky='nsew'
             )
+    def onValidate(self, P):
         
+        if str.isdigit(P) or P == "":
+            if len(P)>0 and P[0] == "0":
+                return False
+            else:
+                return True
+        else:
+            return False
         
 
 class arduino_pannel():

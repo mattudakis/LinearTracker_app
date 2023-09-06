@@ -46,8 +46,14 @@ class video_stream():
         self.capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, vid_w)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, vid_h)
-        #self.capture.set(cv2.CAP_PROP_EXPOSURE, -6) # Setting the exposure on logitech cameras is often important as the frame rate drops if exposure is too high.
-        self.capture.set(cv2.CAP_PROP_SETTINGS, 0) # Use this to get camera settings for the webcam. (might include this into a menu option)
+        self.capture.set(cv2.CAP_PROP_AUTO_EXPOSURE,0)
+        self.capture.set(cv2.CAP_PROP_EXPOSURE, -6) # Setting the exposure on logitech cameras is often important as the frame rate drops if exposure is too high.
+        self.capture.set(cv2.CAP_PROP_GAIN,75)
+        self.capture.set(cv2.CAP_PROP_AUTOFOCUS,0)
+        self.capture.set(cv2.CAP_PROP_FOCUS,0)
+        
+        #self.capture.set(cv2.CAP_PROP_SETTINGS, 0) # Use this to get camera settings for the webcam. (might include this into a menu option)
+        
         # fourcc settings needs to be after all other settings for it to work?! - might be due to opencv backend being ffmpeg
         self.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G")) # This is important to maintain higher FPS with higer resolution video for this to work must have ffmpeg installed
         
@@ -215,6 +221,7 @@ class tracker_app():
         self.rest_running = False
         self.session_start = 0
         self.session_number = 1
+        self.correct_trials = 0
         self.arduino_serial = []
         
         self.possition_array = np.zeros((50,2),dtype=int)
@@ -334,6 +341,8 @@ class tracker_app():
         try:
             self.arduino_serial.write(str(port).encode())
             print("Reward " + str(port) + " delivered")
+            if self.session_running:
+                self.correct_trials += 1
         except:
             print("No Connected Arduino")
 
@@ -412,6 +421,7 @@ class tracker_app():
 
     def reset_sessions(self):
         self.session_number = 1
+        self.correct_trials = 0
          
     
     def set_camera_resolution(self,*args):
@@ -434,13 +444,18 @@ class tracker_app():
         if self.session_running: 
             print("stoping_session")
             self.gui.experiment.start_session_button.config(text="Start Session")
+            
+            self.gui.experiment.session_but_state.set(0)
             self.session_running = False
             self.session_number += 1
+            
         else:
             self.session_start = datetime.now()
             print("starting session")
             self.gui.experiment.start_session_button.config(text="Stop Session")
+            
             self.session_running = True
+            self.correct_trials = 0
          
     
     def start_stop_rest_button(self):
@@ -449,6 +464,7 @@ class tracker_app():
         if self.rest_running: 
             print("stoping rest")
             self.gui.experiment.start_rest_button.config(text="Start Rest")
+            self.gui.experiment.rest_but_state.set(0)
             self.rest_running = False
         else:
             self.rest_start = datetime.now()
@@ -530,19 +546,31 @@ class tracker_app():
         if self.session_running:
             self.session_time = datetime.now() - self.session_start
 
-            minutes, seconds = divmod(self.session_time.seconds, 60)
-            hours, minutes = divmod(minutes, 60)
-            hund_millis = round(self.session_time.microseconds/100000) 
+            sesh_minutes, sesh_seconds = divmod(self.session_time.seconds, 60)
+            sesh_hours, sesh_minutes = divmod(sesh_minutes, 60)
+            sesh_hund_millis = round(self.session_time.microseconds/100000) 
             
-            if hund_millis == 10:
-                hund_millis = 0
-            if hours > 0:
-                session_time_string = f"{hours}:{minutes:02}:{seconds:02}.{hund_millis:01}"
+            if sesh_hund_millis == 10:
+                sesh_hund_millis = 0
+            if sesh_hours > 0:
+                session_time_string = f"{sesh_hours}:{sesh_minutes:02}:{sesh_seconds:02}.{sesh_hund_millis:01}"
             else:
-                session_time_string = f"{minutes:02}:{seconds:02}.{hund_millis:01}"
+                session_time_string = f"{sesh_minutes:02}:{sesh_seconds:02}.{sesh_hund_millis:01}"
                 
             self.gui.experiment.session_time_label_val['text'] = session_time_string
             self.gui.experiment.session_number_label_val['text'] = (str(self.session_number))
+            self.gui.experiment.lap_num_label_val['text'] = str(int(np.floor(self.correct_trials/2)))
+
+            try:
+                session_length = self.gui.experiment.session_len.get()
+            except:
+                session_length = 0
+            
+            if self.gui.experiment.auto_session.get() and session_length>0:
+                if sesh_minutes == session_length and sesh_seconds == 0:
+                    self.start_stop_session_button()
+
+
         
 
         if self.rest_running:
@@ -560,7 +588,16 @@ class tracker_app():
                 rest_time_string = f"{minutes:02}:{seconds:02}.{hund_millis:01}"
             
             self.gui.experiment.rest_time_label_val['text'] = rest_time_string   
-        
+
+            try:
+                rest_length = self.gui.experiment.rest_len.get()
+            except:
+                rest_length = 0
+                
+            if self.gui.experiment.auto_session.get() and rest_length>0:
+                if minutes == rest_length and seconds == 0:
+                    self.start_stop_rest_button()
+
         
     def refresher(self):
         self.gui.aquisition.fps_string_var.set(f'FPS: {self.cam.fps:.2f}')
@@ -580,7 +617,12 @@ class tracker_app():
         self.frame = self.cam.get_frame()
         self.coords = self.cam.get_coords()
 
-        if self.frame is not None: 
+        if self.frame is not None:
+                
+            if self.gui.tracking.frame_to_display.get() == 'LED Mask': 
+                self.frame[self.cam.final_mask==255] = self.mask_colour
+            
+
             if self.gui.tracking.overlay_position.get():
                 possition_data = self.get_tracked_data()
                 for pos in possition_data:
@@ -588,9 +630,6 @@ class tracker_app():
                     radius = 4
                     width = 1
                     self.frame = cv2.circle(self.frame, center, radius, (0, 0, 255), width)
-                
-            if self.gui.tracking.frame_to_display.get() == 'LED Mask': 
-                self.frame[self.cam.final_mask==255] = self.mask_colour
             
             cv2image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGBA)
             self.last_frame = Image.fromarray(cv2image)
