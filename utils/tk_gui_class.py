@@ -10,7 +10,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import serial.tools.list_ports
 
-from utils.app_classes import Rectangle
+from utils.app_classes import *
 
 
 
@@ -160,6 +160,13 @@ class tk_gui():
         self.dark_label.pack(side='right',padx=2, pady=2)
         self.root.iconbitmap("tktheme/theme/logos/tracker_icon.ico")
 
+        #custom button that is a shutter for cam settings
+        self.cam_settings_button = ttk.Button(
+            self.theme_frame,
+            style='Logo.TButton'
+            )
+        self.cam_settings_button.pack(side='left',padx=(5,5), pady=2)   
+
         
         
 class video_pannel():
@@ -181,9 +188,9 @@ class video_pannel():
         self.video_canvas.tag_lower('video','all')
         self.video_canvas.grid(row=0, column=0)
         
-        r1 = Rectangle(self.video_canvas, 140, 145, 200, 205)
-        r2 = Rectangle(self.video_canvas, 201, 162, 589, 192)
-        r3 = Rectangle(self.video_canvas, 590, 145, 650, 205)
+        r1 = RewardZone(self.video_canvas, [140, 145, 200, 205], rewardport=1, name='Reward Zone 1')
+        r2 = RewardZone(self.video_canvas, [590, 145, 650, 205], rewardport=2, name='Reward Zone 2')
+        r3 = Rectangle(self.video_canvas,[201, 162, 589, 192], name='linear track')
 
         self.zones = [r1, r2, r3]
 

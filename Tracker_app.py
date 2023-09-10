@@ -21,6 +21,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 
 from utils.tk_gui_class import tk_gui
+from utils.app_classes import *
 
 
 
@@ -37,6 +38,7 @@ class video_stream():
         self.led_thresh = 50
         self.video_resolution = [640,360]
         self.vid_tag = "Sample"
+        self.last_zone_occupied = 0
 
 
     def start_capture(self):
@@ -51,9 +53,6 @@ class video_stream():
         self.capture.set(cv2.CAP_PROP_GAIN,75)
         self.capture.set(cv2.CAP_PROP_AUTOFOCUS,0)
         self.capture.set(cv2.CAP_PROP_FOCUS,0)
-        
-        #self.capture.set(cv2.CAP_PROP_SETTINGS, 0) # Use this to get camera settings for the webcam. (might include this into a menu option)
-        
         # fourcc settings needs to be after all other settings for it to work?! - might be due to opencv backend being ffmpeg
         self.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G")) # This is important to maintain higher FPS with higer resolution video for this to work must have ffmpeg installed
         
@@ -82,8 +81,8 @@ class video_stream():
                 self.find_position()
                 self.process_position()
 
-                #if app.gui.tracking.save_tracking.get():
-                #    self.save_data()
+                if app.gui.tracking.save_tracking.get():
+                   self.save_data()
 
                 
                 self.elapsed = now-start
@@ -169,11 +168,11 @@ class video_stream():
 
 
     def process_position(self):
-        self.reward_zones = app.gui.video.zones #get location of reward zones
+        self.track_zones = app.gui.video.zones #get location of reward zones
         pos = self.tracked_position
         
         inzone = np.zeros(3,dtype=int)
-        for i, zone in enumerate(self.reward_zones):
+        for i, zone in enumerate(self.track_zones):
            inzone[i] = zone.is_occupied(pos)
            
         if any(inzone):
@@ -181,8 +180,28 @@ class video_stream():
             zone_occupied = np.concatenate(zone_occupied,axis=None)
             zone_occupied = min(zone_occupied) #if there are multi zones occupied take the lowest one
             
-            print(f"Zone {zone_occupied} occupied")
-    
+            #print(f"Zone {zone_occupied} occupied")
+
+            occupied_zone = self.track_zones[zone_occupied]
+            other_zones = [zone for i, zone in enumerate(self.track_zones) if i!=zone_occupied]
+
+                           
+            if app.session_running:
+                if isinstance(occupied_zone,RewardZone) and occupied_zone.isactive:
+                    app.trigger_reward(occupied_zone.rewardport)
+                    print("occupied rewardzone")
+                    # activate the other reward zones
+                    for zone in other_zones:
+                        if isinstance(zone,RewardZone):
+                            zone.activate()
+                    # deactivate this zone        
+                    occupied_zone.deactivate()
+
+            if zone_occupied != self.last_zone_occupied:
+               print(f"Zone {occupied_zone.name} Entered")
+               self.last_zone_occupied = zone_occupied
+            
+
     def save_data(self):
         
         logging_filename = app.logging_csv
@@ -257,6 +276,7 @@ class tracker_app():
         self.gui.arduino.solinoid_2_switch.configure(command=lambda: self.open_close_port(port=2))
 
         self.gui.theme_switch.configure(command= self.change_theme)
+        self.gui.cam_settings_button.configure(command= self.camera_settings)
 
 
     def Led_to_track(self):
@@ -306,6 +326,9 @@ class tracker_app():
             self.gui.logo_canvas.create_image(5,5,anchor=tk.NW, image=self.gui.logo_imgnew)
             self.gui.logo_canvas.configure(background='#f2f2f2')
 
+    def camera_settings(self):
+        if hasattr(self.cam,'capture'):
+            self.cam.capture.set(cv2.CAP_PROP_SETTINGS, 0)
 
     def connect_to_serial(self):
         serial_port = self.select_comport()
@@ -341,10 +364,11 @@ class tracker_app():
         try:
             self.arduino_serial.write(str(port).encode())
             print("Reward " + str(port) + " delivered")
-            if self.session_running:
-                self.correct_trials += 1
         except:
-            print("No Connected Arduino")
+            print(f"Reward{port} triggered but No Connected Arduino")
+
+        if self.session_running:
+            self.correct_trials += 1
 
     def open_close_port(self,port):
         if port == 1:

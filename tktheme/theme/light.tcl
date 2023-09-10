@@ -72,6 +72,15 @@ namespace eval ttk::theme::azure-light {
             }
         }
 
+
+        ttk::style layout Logo.TButton {
+            LogoButton.button -children {
+                LogoButton.padding -children {
+                    LogoButton.label -side left -expand true
+                } 
+            }
+        }
+
         ttk::style layout TCheckbutton {
             Checkbutton.button -children {
                 Checkbutton.padding -children {
@@ -222,6 +231,19 @@ namespace eval ttk::theme::azure-light {
                 pressed $I(rect-basic) \
                 active $I(button-hover) \
             ] -border 4 -sticky ewns
+
+
+        # Logo Button
+        ttk::style configure Logo.TButton -padding 2 -width -2 
+
+        ttk::style element create LogoButton.button image \
+            [list $I(shutter) \
+            	{selected disabled} $I(shutter) \
+                disabled $I(shutter) \
+                pressed $I(shutter) \
+                selected $I(shutter) \
+                active $I(shutter-hover) \
+            ] -border 0 -sticky ewns
 
         # Toolbutton
         ttk::style configure Toolbutton -padding {8 4 8 4} -width -10 -anchor center

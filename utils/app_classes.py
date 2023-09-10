@@ -6,19 +6,32 @@ Created on Tue Mar  7 17:39:18 2023
 """
 
 class Rectangle:
-    def __init__(self, canvas, x1, y1, x2, y2):
+    def __init__(self, canvas, coordinates, name):
+        
         self.canvas = canvas
-        self.x1 = x1
-        self.x2 = x2
-        self.y1 = y1
-        self.y2 = y2
-        self.id = canvas.create_rectangle(x1, y1, x2, y2, width=1.5, outline='#3cdfff', activedash=(7,),activewidth = 5)
+        self.coords = self.validate_input(coordinates)
+        self.name = name
+        self.base_colour = '#3cdfff'
+        self.x1 = self.coords[0]
+        self.y1 = self.coords[1]
+        self.x2 = self.coords[2]
+        self.y2 = self.coords[3]
+        self.id = canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, width=1.5, outline=self.base_colour, activedash=(7,),activewidth = 5)
         self.active = False
         self.selected_corner = None
         self.canvas.tag_bind(self.id, '<Button-1>', self.on_button_press)
         self.canvas.tag_bind(self.id, '<Button1-Motion>', self.on_move_press)
         self.canvas.tag_bind(self.id, "<ButtonRelease-1>", self.on_button_release)
     
+    def validate_input(self,input):
+        if len(input)<4 or len(input)>4:
+            raise ValueError("coordinates must be a list/array with 4 integers x1, y1, x2, y2")
+        
+        if all(isinstance(x, int) for x in input):
+            return input
+        else: 
+            raise ValueError("coordinates must be integers")
+
     def on_button_press(self, event):
         if self.is_inside(event):
             self.active = True
@@ -93,3 +106,22 @@ class Rectangle:
             return "bottom_right"
         else:
             return None
+    
+
+class RewardZone(Rectangle):
+    def __init__(self, canvas, coordinates, rewardport, name):
+
+        self.rewardport = rewardport
+        self.isactive = True
+        super().__init__(canvas, coordinates, name)
+    
+    def change_colour(self, colour):
+        self.canvas.itemconfig(self.id, outline=colour)
+
+    def deactivate(self):
+        self.change_colour('red')
+        self.isactive = False
+
+    def activate(self):
+        self.change_colour(self.base_colour)
+        self.isactive = True
