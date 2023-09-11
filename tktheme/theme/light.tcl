@@ -243,7 +243,7 @@ namespace eval ttk::theme::azure-light {
                 pressed $I(shutter) \
                 selected $I(shutter) \
                 active $I(shutter-hover) \
-            ] -border 0 -sticky ewns
+            ] -border 0 -sticky ew
 
         # Toolbutton
         ttk::style configure Toolbutton -padding {8 4 8 4} -width -10 -anchor center

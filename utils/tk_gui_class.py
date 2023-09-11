@@ -160,12 +160,7 @@ class tk_gui():
         self.dark_label.pack(side='right',padx=2, pady=2)
         self.root.iconbitmap("tktheme/theme/logos/tracker_icon.ico")
 
-        #custom button that is a shutter for cam settings
-        self.cam_settings_button = ttk.Button(
-            self.theme_frame,
-            style='Logo.TButton'
-            )
-        self.cam_settings_button.pack(side='left',padx=(5,5), pady=2)   
+
 
         
         
@@ -497,28 +492,33 @@ class aquisition_pannel():
             sticky='nsew'
             )
 
+         
+
         # Frame to hold video resolution and FPS
         self.vid_res_frame = ttk.Frame(self.aquisition_frame)
         self.vid_res_frame.grid(
             row=2, 
             column=0, 
             columnspan=2,
-            pady=(0,2)
+            pady=(0,2),
+            padx=(2,2)
             )
+        #self.vid_res_frame.columnconfigure((0,1), weight=1) 
         
         # Video resolution selector spinbox
         self.video_res = tk.StringVar()
         self.vid_res_cb = ttk.Combobox(
             self.vid_res_frame,
             textvariable=self.video_res,
-            height=5
+            height=4,
+            width=20
             )
         self.vid_res_cb.grid(
             row=0, 
             column=1, 
-            sticky='s', 
-            pady=(0,5), 
-            padx=0
+            sticky='nsew', 
+            pady=(0,5),
+            padx=(2,5)
             )
         self.vid_res_cb['values'] = self.avaliable_resolutions
         self.vid_res_cb['state'] = 'readonly'
@@ -537,9 +537,20 @@ class aquisition_pannel():
             column=0, 
             sticky='w', 
             pady=2, 
-            padx=2
+            padx=2,
             )
-
+                #custom button that is a shutter for cam settings
+        self.cam_settings_button = ttk.Button(
+            self.vid_res_frame,
+            style='Logo.TButton'
+            )
+        self.cam_settings_button.grid(
+            row=0, 
+            column=2,  
+            pady=2,
+            sticky='nsew',
+            padx=(5,10)
+            )
 
 
 class inscopix_pannel():
@@ -575,6 +586,81 @@ class inscopix_pannel():
             sticky = 'nsew', 
             pady=(0,5), 
             padx=(15,10)
+            )
+        
+        # Activate Opto Zone tracking position checkbox
+        self.activate_opto = tk.IntVar(value=0)
+        self.activate_opto_check = ttk.Checkbutton(
+            self.inscopix_frame, 
+            variable=self.activate_opto, 
+            text = 'Activate Optogenetic Zone'
+            )
+        self.activate_opto_check.grid(
+            row=0, 
+            column=0,
+            columnspan=2, 
+            sticky='nsew',
+            pady=(20,5),
+            padx=(20,10),
+            )
+        
+        # Opto Zone correction mode
+        self.opto_correct = tk.IntVar(value=1)
+        self.opto_correct_check = ttk.Checkbutton(
+            self.inscopix_frame, 
+            variable=self.opto_correct, 
+            text = 'OptoZone Correction',
+            state='disabled'
+            )
+        self.opto_correct_check.grid(
+            row=1, 
+            column=0,  
+            columnspan=2,
+            sticky='nsew', 
+            padx=(20,20),
+            pady=(5,10)
+            )
+        
+        self.optoseperator = ttk.Separator(self.inscopix_frame)
+        self.optoseperator.grid(
+            row=2, 
+            column=0,
+            columnspan=2,  
+            padx=(40), 
+            pady=(0),
+            sticky='nsew'
+            )
+
+        # Opto on Button 
+        self.opto_on = tk.IntVar(value=0)
+        self.opto_on_button = ttk.Checkbutton(
+            self.inscopix_frame, 
+            text="Opto On", 
+            style="Toggle.TButton", 
+            variable=self.opto_on
+            )
+        self.opto_on_button.grid(
+            row=3, 
+            column=0, 
+            padx=(20, 10), 
+            pady=(15, 10), 
+            ipady= 5,  
+            sticky='nsew'
+            )
+        
+        # Opto on Button
+        self.opto_off_button = ttk.Button(
+            self.inscopix_frame, 
+            text="Opto Off", 
+            style="Toggle.TButton"
+            )
+        self.opto_off_button.grid(
+            row=3, 
+            column=1, 
+            padx=(10, 20), 
+            pady=(15, 10),
+            ipady= 5,  
+            sticky='nsew'
             )
         
 

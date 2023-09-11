@@ -232,7 +232,7 @@ namespace eval ttk::theme::azure-dark {
 
 
         # Logo Button
-        ttk::style configure Logo.TButton -padding 2 -width -2 
+        ttk::style configure Logo.TButton -padding 2 -width -2
 
         ttk::style element create LogoButton.button image \
             [list $I(shutter) \
@@ -241,7 +241,7 @@ namespace eval ttk::theme::azure-dark {
                 pressed $I(shutter) \
                 selected $I(shutter) \
                 active $I(shutter-hover) \
-            ] -border 0 -sticky ewns
+            ] -border 0 -sticky ew
 
         # Toolbutton
         ttk::style configure Toolbutton -padding {8 4 8 4} -width -10 -anchor center

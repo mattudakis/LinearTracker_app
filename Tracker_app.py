@@ -185,11 +185,13 @@ class video_stream():
             occupied_zone = self.track_zones[zone_occupied]
             other_zones = [zone for i, zone in enumerate(self.track_zones) if i!=zone_occupied]
 
+            if zone_occupied != self.last_zone_occupied:
+               print(f"{occupied_zone.name} Entered")
+               self.last_zone_occupied = zone_occupied
                            
             if app.session_running:
                 if isinstance(occupied_zone,RewardZone) and occupied_zone.isactive:
                     app.trigger_reward(occupied_zone.rewardport)
-                    print("occupied rewardzone")
                     # activate the other reward zones
                     for zone in other_zones:
                         if isinstance(zone,RewardZone):
@@ -197,9 +199,7 @@ class video_stream():
                     # deactivate this zone        
                     occupied_zone.deactivate()
 
-            if zone_occupied != self.last_zone_occupied:
-               print(f"Zone {occupied_zone.name} Entered")
-               self.last_zone_occupied = zone_occupied
+
             
 
     def save_data(self):
@@ -276,7 +276,7 @@ class tracker_app():
         self.gui.arduino.solinoid_2_switch.configure(command=lambda: self.open_close_port(port=2))
 
         self.gui.theme_switch.configure(command= self.change_theme)
-        self.gui.cam_settings_button.configure(command= self.camera_settings)
+        self.gui.aquisition.cam_settings_button.configure(command= self.camera_settings)
 
 
     def Led_to_track(self):
@@ -365,7 +365,7 @@ class tracker_app():
             self.arduino_serial.write(str(port).encode())
             print("Reward " + str(port) + " delivered")
         except:
-            print(f"Reward{port} triggered but No Connected Arduino")
+            print(f"Reward {port} triggered but no connected Arduino")
 
         if self.session_running:
             self.correct_trials += 1
@@ -454,6 +454,8 @@ class tracker_app():
         """        
         vid_res_index = self.gui.aquisition.vid_res_cb.current()
         camera_resolution = self.gui.avaliable_resolutions[vid_res_index]
+        res_len = len(self.gui.avaliable_resolutions_string[vid_res_index])
+        self.gui.aquisition.vid_res_cb.configure(width = res_len+2)
         
         self.cam.video_resolution = camera_resolution
         self.frame_resize_factor = [
@@ -472,6 +474,9 @@ class tracker_app():
             self.gui.experiment.session_but_state.set(0)
             self.session_running = False
             self.session_number += 1
+            for zone in self.gui.video.zones:
+                if isinstance(zone,RewardZone):
+                    zone.activate() 
             
         else:
             self.session_start = datetime.now()
@@ -624,7 +629,7 @@ class tracker_app():
 
         
     def refresher(self):
-        self.gui.aquisition.fps_string_var.set(f'FPS: {self.cam.fps:.2f}')
+        self.gui.aquisition.fps_string_var.set(f'FPS: {self.cam.fps:05.2f}')
         
         if self.is_streaming:
             self.root.after(1000, self.refresher) # every second...    
