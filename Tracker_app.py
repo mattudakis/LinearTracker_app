@@ -39,6 +39,9 @@ class video_stream():
         self.video_resolution = [640,360]
         self.vid_tag = "Sample"
         self.last_zone_occupied = 0
+        self.session_number = 1
+        self.session_running = False
+        self.new_message = False
 
 
     def start_capture(self):
@@ -180,13 +183,13 @@ class video_stream():
             zone_occupied = np.concatenate(zone_occupied,axis=None)
             zone_occupied = min(zone_occupied) #if there are multi zones occupied take the lowest one
             
-            #print(f"Zone {zone_occupied} occupied")
+            #self.log_message(f"Zone {zone_occupied} occupied")
 
             occupied_zone = self.track_zones[zone_occupied]
             other_zones = [zone for i, zone in enumerate(self.track_zones) if i!=zone_occupied]
 
             if zone_occupied != self.last_zone_occupied:
-               print(f"{occupied_zone.name} Entered")
+               self.log_message(f"{occupied_zone.name} Entered")
                self.last_zone_occupied = zone_occupied
                            
             if app.session_running:
@@ -200,7 +203,11 @@ class video_stream():
                     occupied_zone.deactivate()
 
 
-            
+    def log_message(self,message):
+        self.new_message = True
+        self.message = message
+        print(self.message)
+
 
     def save_data(self):
         
@@ -208,13 +215,19 @@ class video_stream():
         if not os.path.exists(logging_filename):
             with open(logging_filename, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording'])  # Write header
+                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording', 'Trial Running','Trial Number','Event Log'])  # Write header
+        
+        if self.new_message:
+            self.event_log = self.message
+            self.new_message = False
+        else:
+            self.event_log = " "
 
         # Append data to the CSV file
         with open(logging_filename, 'a', newline='') as file:
             walltime = datetime.fromtimestamp(self.timestamp)
             writer = csv.writer(file)
-            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording])
+            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording, self.session_running, self.session_number, self.event_log])
         
 
         # here we would also put the logic for the task and call functions from 
@@ -242,6 +255,7 @@ class tracker_app():
         self.session_number = 1
         self.correct_trials = 0
         self.arduino_serial = []
+        self.opto_running = False
         
         self.possition_array = np.zeros((50,2),dtype=int)
         
@@ -249,7 +263,7 @@ class tracker_app():
         self.cam = video_stream() # create a video stream instance 
         self.set_camera_resolution()
         self.bind_callbacks()
-       
+    
     def bind_callbacks(self):
         self.gui.experiment.start_session_button.configure(command= self.start_stop_session_button) 
         self.gui.experiment.start_rest_button.configure(command= self.start_stop_rest_button) 
@@ -261,6 +275,7 @@ class tracker_app():
         self.gui.tracking.ledsize_slider.configure(command=self.update_ledsize)
         self.gui.tracking.led_colour_spin.configure(command=self.Led_to_track)
         self.gui.tracking.crop_button.configure(command=self.crop_track)
+        self.gui.tracking.save_tracking.configure(command=self.toggle_save_tracking)
 
         self.gui.aquisition.stream_button.configure(command=self.start_stop_stream_button)
         self.gui.aquisition.start_button.configure(command= self.start_rec_button)
@@ -275,8 +290,12 @@ class tracker_app():
         self.gui.arduino.solinoid_1_switch.configure(command=lambda: self.open_close_port(port=1))
         self.gui.arduino.solinoid_2_switch.configure(command=lambda: self.open_close_port(port=2))
 
+        self.gui.inscopix.opto_on_button.configure(command=lambda: self.trigger_opto_on(port=7))
+        self.gui.inscopix.opto_off_button.configure(command=lambda: self.trigger_opto_off(port=8))
+
         self.gui.theme_switch.configure(command= self.change_theme)
         self.gui.aquisition.cam_settings_button.configure(command= self.camera_settings)
+
 
 
     def Led_to_track(self):
@@ -295,6 +314,32 @@ class tracker_app():
         self.mask_colour[channel] = 255
         self.cam.colour_chan = channel
         
+    def trigger_opto_on(self,port):
+
+        self.gui.video.zones[1].hide()
+
+        try:
+            self.arduino_serial.write(str(port).encode())
+            self.cam.log_message("Optogenetics on")
+            self.opto_running = True
+            
+        except:
+            self.cam.log_message(f"Optogenetics triggered on but no connected Arduino")
+            
+
+    def trigger_opto_off(self,port):
+        self.gui.video.zones[1].show()
+        try:
+            self.arduino_serial.write(str(port).encode())
+            self.cam.log_message("Optogenetics off")
+            self.opto_running = False
+        except:
+            self.cam.log_message(f"Optogenetics triggered off but no connected Arduino")
+
+    def toggle_save_tracking(self):
+        if self.gui.tracking.save_tracking.get():
+            self.logging_csv = self.get_file_name("logging")
+
 
     def change_theme(self):
         if self.root.tk.call("ttk::style", "theme", "use") == "azure-dark":
@@ -335,7 +380,7 @@ class tracker_app():
         try:
             self.arduino_serial = serial.Serial(serial_port, 9600)
             time.sleep(1)
-            print("Arduino connected")
+            self.cam.log_message("Arduino connected")
         
             if self.arduino_serial.is_open:
                 self.gui.arduino.arduino_connect_label.configure(
@@ -345,7 +390,7 @@ class tracker_app():
                 self.gui.arduino.arduino_disconnect_button.configure(state="normal")
                 self.gui.arduino.serial_port_cb.configure(state="disabled")
         except:
-            print("Failed to connect to arduino \n Check you have the correct COM port \n and that it is not in use.")
+            self.cam.log_message("Failed to connect to arduino \n Check you have the correct COM port \n and that it is not in use.")
 
 
     def disconnect_serial(self): 
@@ -355,17 +400,17 @@ class tracker_app():
             self.gui.arduino.arduino_disconnect_button.configure(state="disabled")
             self.gui.arduino.arduino_connect_label.configure(text=("Select Arduino COM port"))
             self.gui.arduino.serial_port_cb.configure(state="readonly")
-            print("Arduino disconnected")
+            self.cam.log_message("Arduino disconnected")
         except:
-            print("No Connected Arduino")
+            self.cam.log_message("No Connected Arduino")
     
         
     def trigger_reward(self,port):
         try:
             self.arduino_serial.write(str(port).encode())
-            print("Reward " + str(port) + " delivered")
+            self.cam.log_message("Reward " + str(port) + " delivered")
         except:
-            print(f"Reward {port} triggered but no connected Arduino")
+            self.cam.log_message(f"Reward {port} triggered but no connected Arduino")
 
         if self.session_running:
             self.correct_trials += 1
@@ -376,24 +421,24 @@ class tracker_app():
               try: 
                   self.arduino_serial.write(b'3')
                   self.gui.arduino.solinoid_1_state_label.configure(text="Open")
-              except: print("No Connected Arduino")
+              except: self.cam.log_message("No Connected Arduino")
           else:
               try: 
                   self.arduino_serial.write(b'4')
                   self.gui.arduino.solinoid_1_state_label.configure(text="Closed")
-              except: print("No Connected Arduino")
+              except: self.cam.log_message("No Connected Arduino")
         elif port == 2:
           if self.gui.arduino.solinoid_switch_2_val.get():
               try: 
                   self.arduino_serial.write(b'5')
                   self.gui.arduino.solinoid_2_state_label.configure(text="Open")
 
-              except: print("No Connected Arduino")
+              except: self.cam.log_message("No Connected Arduino")
           else:
               try: 
                   self.arduino_serial.write(b'6')
                   self.gui.arduino.solinoid_2_state_label.configure(text="Closed")
-              except: print("No Connected Arduino")
+              except: self.cam.log_message("No Connected Arduino")
                   
                    
 
@@ -401,7 +446,7 @@ class tracker_app():
         self.gui.arduino.serial_port_cb.current()
         port_index = self.gui.arduino.serial_port_cb.current()
         self.selected_comport = self.gui.arduino.comports_avaliable[port_index]
-        print("Selected " + self.gui.arduino.comport_described[port_index])
+        self.cam.log_message("Selected " + self.gui.arduino.comport_described[port_index])
         return self.selected_comport
     
 
@@ -415,7 +460,7 @@ class tracker_app():
     
 
     def crop_track(self):
-        print("cropping Track yet to be implemented")
+        self.gui.video.crop_zone.hide()
 
 
     def get_file_name(self, type):
@@ -445,6 +490,7 @@ class tracker_app():
 
     def reset_sessions(self):
         self.session_number = 1
+        self.cam.session_number = self.session_number
         self.correct_trials = 0
          
     
@@ -468,36 +514,44 @@ class tracker_app():
         """ Start/stop session timmer button 
         """
         if self.session_running: 
-            print("stoping_session")
+            self.cam.log_message("stoping_session")
             self.gui.experiment.start_session_button.config(text="Start Session")
+
+            self.session_number += 1
+            self.cam.session_number = self.session_number
             
             self.gui.experiment.session_but_state.set(0)
             self.session_running = False
-            self.session_number += 1
+            self.cam.session_running = self.session_running
             for zone in self.gui.video.zones:
                 if isinstance(zone,RewardZone):
                     zone.activate() 
             
+            if self.gui.tracking.save_tracking.get():
+                self.logging_csv = self.get_file_name("logging")
+            
         else:
             self.session_start = datetime.now()
-            print("starting session")
+            self.cam.log_message("starting session")
             self.gui.experiment.start_session_button.config(text="Stop Session")
             
             self.session_running = True
+            self.cam.session_running = self.session_running
             self.correct_trials = 0
+
          
     
     def start_stop_rest_button(self):
         """ Start/stop rest timmer button 
         """
         if self.rest_running: 
-            print("stoping rest")
+            self.cam.log_message("stoping rest")
             self.gui.experiment.start_rest_button.config(text="Start Rest")
             self.gui.experiment.rest_but_state.set(0)
             self.rest_running = False
         else:
             self.rest_start = datetime.now()
-            print("starting rest")
+            self.cam.log_message("starting rest")
             self.gui.experiment.start_rest_button.config(text="Stop Rest")
             self.rest_running = True
     
@@ -525,7 +579,7 @@ class tracker_app():
             self.gui.aquisition.stream_button.configure(text="Streaming... Press to stop")
             self.gui.aquisition.vid_res_cb.configure(state="disabled")
 
-            self.logging_csv = self.get_file_name("logging")
+            
 
 
         # if app is streaming, start display update loops
@@ -537,7 +591,7 @@ class tracker_app():
     def start_rec_button(self):         
         # start the video stream recording
         vidname = self.get_file_name("video")
-        print("recording video: " + vidname)
+        self.log_message("recording video: " + vidname)
         self.cam.vid_tag = vidname
         self.cam.start_record()
         
