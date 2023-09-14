@@ -206,6 +206,7 @@ class video_stream():
     def log_message(self,message):
         self.new_message = True
         self.message = message
+        self.message_timestamp = time.time()
         print(self.message)
 
 
@@ -215,19 +216,21 @@ class video_stream():
         if not os.path.exists(logging_filename):
             with open(logging_filename, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording', 'Trial Running','Trial Number','Event Log'])  # Write header
+                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording', 'Trial Running','Trial Number','Event Log', 'Event Timestamp'])  # Write header
         
         if self.new_message:
             self.event_log = self.message
+            self.event_timestamp = self.message_timestamp
             self.new_message = False
         else:
             self.event_log = " "
+            self.event_timestamp = " "
 
         # Append data to the CSV file
         with open(logging_filename, 'a', newline='') as file:
             walltime = datetime.fromtimestamp(self.timestamp)
             writer = csv.writer(file)
-            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording, self.session_running, self.session_number, self.event_log])
+            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording, self.session_running, self.session_number, self.event_log, self.event_timestamp])
         
 
         # here we would also put the logic for the task and call functions from 
