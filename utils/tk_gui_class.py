@@ -183,9 +183,10 @@ class video_pannel():
         self.video_canvas.tag_lower('video','all')
         self.video_canvas.grid(row=0, column=0)
         
-        r1 = RewardZone(self.video_canvas, [140, 145, 200, 205], rewardport=1, name='Reward Zone 1')
-        r2 = RewardZone(self.video_canvas, [590, 145, 650, 205], rewardport=2, name='Reward Zone 2')
-        r3 = Rectangle(self.video_canvas,[201, 162, 589, 192], name='linear track')
+        r1 = RewardZone(self.video_canvas, [140, 145, 200, 205], rewardport=1, name='Reward_Zone_1')
+        r2 = RewardZone(self.video_canvas, [590, 145, 650, 205], rewardport=2, name='Reward_Zone_2')
+        r3 = Rectangle(self.video_canvas,[201, 162, 589, 192], name='linear_track')
+        self.crop_zone = CropZone(self.video_canvas,[50, 100, 800, 300], name='crop_zone')
 
         self.zones = [r1, r2, r3]
 
@@ -942,7 +943,7 @@ class experiment_pannel():
             )
         
         # Auto session length check box
-        self.auto_session = tk.IntVar(value=0)
+        self.auto_session = tk.IntVar(value=1)
         self.auto_session_len = ttk.Checkbutton(
             self.length_frame, 
             variable=self.auto_session, 

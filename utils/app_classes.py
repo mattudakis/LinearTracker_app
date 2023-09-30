@@ -16,7 +16,7 @@ class Rectangle:
         self.y1 = self.coords[1]
         self.x2 = self.coords[2]
         self.y2 = self.coords[3]
-        self.id = canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, width=1.5, outline=self.base_colour, activedash=(7,),activewidth = 5)
+        self.id = canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, width=1.5, outline=self.base_colour, activedash=(7,),activewidth = 5, tag = self.name)
         self.active = False
         self.selected_corner = None
         self.canvas.tag_bind(self.id, '<Button-1>', self.on_button_press)
@@ -107,6 +107,12 @@ class Rectangle:
         else:
             return None
     
+    def hide(self):
+        self.canvas.itemconfigure(self.name,state='hidden')
+
+    def show(self):
+        self.canvas.itemconfigure(self.name,state='normal')
+    
 
 class RewardZone(Rectangle):
     def __init__(self, canvas, coordinates, rewardport, name):
@@ -125,3 +131,21 @@ class RewardZone(Rectangle):
     def activate(self):
         self.change_colour(self.base_colour)
         self.isactive = True
+    
+
+class CropZone(Rectangle): 
+    def __init__(self, canvas, coordinates, name):
+
+        self.canvas = canvas
+        self.crop_track = False
+        super().__init__(canvas, coordinates, name)
+        self.canvas.itemconfig(self.id, outline='#D3D3D3')
+
+
+class OptoZone(Rectangle):
+    def __init__(self, canvas, coordinates, name):
+
+        self.canvas.itemconfig(self.id, outline='#90EE90')
+        super().__init__(canvas, coordinates, name)
+
+    
