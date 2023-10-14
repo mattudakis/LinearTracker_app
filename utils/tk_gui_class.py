@@ -183,10 +183,10 @@ class video_pannel():
         self.video_canvas.tag_lower('video','all')
         self.video_canvas.grid(row=0, column=0)
         
-        r1 = RewardZone(self.video_canvas, [140, 145, 200, 205], rewardport=1, name='Reward_Zone_1')
-        r2 = RewardZone(self.video_canvas, [590, 145, 650, 205], rewardport=2, name='Reward_Zone_2')
-        r3 = Rectangle(self.video_canvas,[201, 162, 589, 192], name='linear_track')
-        self.crop_zone = CropZone(self.video_canvas,[50, 100, 800, 300], name='crop_zone')
+        r1 = RewardZone(self.video_canvas, [145, 145, 205, 205], rewardport=1, name='Reward_Zone_1')
+        r2 = RewardZone(self.video_canvas, [595, 145, 655, 205], rewardport=2, name='Reward_Zone_2')
+        r3 = Rectangle(self.video_canvas,[206, 162, 594, 192], name='linear_track')
+        self.crop_zone = CropZone(self.video_canvas,[85, 115, 695, 245], name='crop_zone')
 
         self.zones = [r1, r2, r3]
 
@@ -385,10 +385,11 @@ class tracking_pannel():
             )
         
         # Track crop button - could change to a checkbox
-        self.crop_button = ttk.Button(
+        self.crop_button = ttk.Checkbutton(
             self.tracking_frame,
             text="Crop Track",
-            width=10
+            width=10,
+            style="Toggle.TButton"
             )
         self.crop_button.grid(
             row=3, 

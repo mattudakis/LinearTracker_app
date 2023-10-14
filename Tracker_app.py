@@ -42,6 +42,7 @@ class video_stream():
         self.session_number = 1
         self.session_running = False
         self.new_message = False
+        self.crop_track = False
 
 
     def start_capture(self):
@@ -153,6 +154,11 @@ class video_stream():
         mask4 = cv2.dilate(mask3, kernel2) #dilate to make the blob bigger
         self.final_mask = mask4 
         
+        if self.crop_track:
+            crop_mask = self.get_crop_mask(self.final_mask)
+            self.final_mask = cv2.bitwise_and(self.final_mask,crop_mask)
+            
+
         #find the contours
         contours, hierarchy = cv2.findContours(self.final_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         
@@ -209,6 +215,14 @@ class video_stream():
         self.message_timestamp = time.time()
         print(self.message)
 
+    def get_crop_mask(self,frame):
+        # Create an empty black mask of the same size as the frame
+        mask = np.zeros_like(frame)
+        # Draw a white-filled rectangle on the mask       
+        crop_coords = self.app.gui.video.crop_zone.get_coordinates()
+        cv2.rectangle(mask, crop_coords[0], crop_coords[1], (255, 255, 255), thickness=cv2.FILLED)
+        return mask
+
 
     def save_data(self):
         
@@ -236,6 +250,7 @@ class video_stream():
         # here we would also put the logic for the task and call functions from 
         # the app such as trigger reward. will also need to get bools from the app class
         # 
+
 """ 
 
 TRACKER CLASS
@@ -260,6 +275,7 @@ class tracker_app():
         self.arduino_serial = []
         self.opto_running = False
         
+        
         self.possition_array = np.zeros((50,2),dtype=int)
         
         self.gui = tk_gui(self.root)
@@ -277,8 +293,8 @@ class tracker_app():
         self.gui.tracking.thresh_slider.configure(command=self.update_led_thresh) 
         self.gui.tracking.ledsize_slider.configure(command=self.update_ledsize)
         self.gui.tracking.led_colour_spin.configure(command=self.Led_to_track)
-        self.gui.tracking.crop_button.configure(command=self.crop_track)
-        self.gui.tracking.save_tracking.configure(command=self.toggle_save_tracking)
+        self.gui.tracking.crop_button.configure(command=self.toggle_crop_track)
+        self.gui.tracking.save_tracking_check.configure(command=self.toggle_save_tracking)
 
         self.gui.aquisition.stream_button.configure(command=self.start_stop_stream_button)
         self.gui.aquisition.start_button.configure(command= self.start_rec_button)
@@ -319,8 +335,6 @@ class tracker_app():
         
     def trigger_opto_on(self,port):
 
-        self.gui.video.zones[1].hide()
-
         try:
             self.arduino_serial.write(str(port).encode())
             self.cam.log_message("Optogenetics on")
@@ -331,7 +345,7 @@ class tracker_app():
             
 
     def trigger_opto_off(self,port):
-        self.gui.video.zones[1].show()
+
         try:
             self.arduino_serial.write(str(port).encode())
             self.cam.log_message("Optogenetics off")
@@ -462,8 +476,12 @@ class tracker_app():
         self.ledSize = int(self.gui.tracking.ledsize_slider.get())
     
 
-    def crop_track(self):
-        self.gui.video.crop_zone.hide()
+    def toggle_crop_track(self):
+        self.cam.crop_track = not self.cam.crop_track
+        if self.cam.crop_track:
+            self.gui.video.crop_zone.show()
+        else:
+            self.gui.video.crop_zone.hide()
 
 
     def get_file_name(self, type):
@@ -594,7 +612,7 @@ class tracker_app():
     def start_rec_button(self):         
         # start the video stream recording
         vidname = self.get_file_name("video")
-        self.log_message("recording video: " + vidname)
+        self.cam.log_message("recording video: " + vidname)
         self.cam.vid_tag = vidname
         self.cam.start_record()
         
@@ -707,6 +725,12 @@ class tracker_app():
                 
             if self.gui.tracking.frame_to_display.get() == 'LED Mask': 
                 self.frame[self.cam.final_mask==255] = self.mask_colour
+
+            if self.gui.tracking.frame_to_display.get() == 'Crop Track':
+                if self.cam.crop_track:
+                    mask = self.cam.get_crop_mask(self.frame)
+                    # Use bitwise AND to keep the pixels inside the rectangle
+                    self.frame = cv2.bitwise_and(self.frame, mask)
             
 
             if self.gui.tracking.overlay_position.get():

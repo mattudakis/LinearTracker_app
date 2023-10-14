@@ -139,7 +139,12 @@ class CropZone(Rectangle):
         self.canvas = canvas
         self.crop_track = False
         super().__init__(canvas, coordinates, name)
-        self.canvas.itemconfig(self.id, outline='#D3D3D3')
+        self.canvas.itemconfig(self.id, outline='#D3D3D3', state = 'hidden')
+    
+    def get_coordinates(self):
+        self.canvas.itemconfig(self.id,state = 'normal')
+        bbox = self.canvas.bbox(self.id)
+        return [(bbox[0],bbox[1]),(bbox[2],bbox[3])]
 
 
 class OptoZone(Rectangle):
