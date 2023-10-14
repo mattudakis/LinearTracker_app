@@ -1292,7 +1292,7 @@ class arduino_pannel():
             row=5, 
             column=0,  
             padx=(10, 0), 
-            pady=(5, 20),
+            pady=(5, 10),
             )
         
         self.solinoid_2_button = ttk.Button(
@@ -1303,8 +1303,50 @@ class arduino_pannel():
             row=5, 
             column=2,  
             padx=(0, 10), 
-            pady=(5, 20),
+            pady=(5, 10),
             )
+        
+        self.solinoid_switch_3_val = tk.IntVar(value=1)
+        self.solinoid_3_switch = ttk.Checkbutton(
+            self.arduino_frame, 
+            style='Switch.TCheckbutton',
+            variable=self.solinoid_switch_3_val
+            )
+        self.solinoid_3_switch.grid(
+            row=7,
+            column=2,
+            padx=(10,2),
+            sticky='w',
+            pady=(10,5), 
+            ipady=5
+            )
+        self.solinoid_3_state_label = tk.Label(
+            self.arduino_frame,
+            text = 'Open'
+            )
+        self.solinoid_3_state_label.grid(
+            row=7,
+            column=2,
+            padx=(0,10), 
+            pady=0,
+            sticky='e'
+            )
+        # Probabilistic reward checkbox
+        self.probability_reward = tk.IntVar(value=0)
+        self.probility_reward_check = ttk.Checkbutton(
+            self.arduino_frame, 
+            variable=self.probability_reward, 
+            text = 'Probabilistic reward'
+            )
+        self.probility_reward_check.grid(
+            row=7, 
+            column=0,
+            columnspan=2, 
+            pady=5,
+            padx=(5,0), 
+            sticky='w',
+            )
+        
 
     def get_com_ports(self):
         
