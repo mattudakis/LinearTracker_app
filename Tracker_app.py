@@ -14,7 +14,6 @@ from pathlib import Path
 import time
 from datetime import datetime
 import serial
-import random
 
 import tkinter as tk
 from tkinter import ttk  # Normal Tkinter.* widgets are not themed!
@@ -44,8 +43,6 @@ class video_stream():
         self.session_running = False
         self.new_message = False
         self.crop_track = False
-        self.current_reward_prob = 1
-        self.probability_value = 1
 
 
     def start_capture(self):
@@ -204,8 +201,6 @@ class video_stream():
             if app.session_running:
                 if isinstance(occupied_zone,RewardZone) and occupied_zone.isactive:
                     app.trigger_reward(occupied_zone.rewardport)
-                    if app.random_reward:
-                        app.set_reward_prob()
                     # activate the other reward zones
                     for zone in other_zones:
                         if isinstance(zone,RewardZone):
@@ -235,7 +230,7 @@ class video_stream():
         if not os.path.exists(logging_filename):
             with open(logging_filename, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording', 'Trial Running','Trial Number','Reward Probability','Event Log', 'Event Timestamp'])  # Write header
+                writer.writerow(['Walltime','Frame_number','Timestamp', 'x_coord','y_coord', 'Recording', 'Trial Running','Trial Number','Event Log', 'Event Timestamp'])  # Write header
         
         if self.new_message:
             self.event_log = self.message
@@ -249,8 +244,8 @@ class video_stream():
         with open(logging_filename, 'a', newline='') as file:
             walltime = datetime.fromtimestamp(self.timestamp)
             writer = csv.writer(file)
-            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording, self.session_running, self.session_number, self.current_reward_prob, self.event_log, self.event_timestamp])
-            self.current_reward_prob = self.probability_value
+            writer.writerow([walltime.strftime("%H:%M:%S.%f"), self.frame_count, self.frame_timestamp,  self.tracked_position[0], self.tracked_position[1],self.recording, self.session_running, self.session_number, self.event_log, self.event_timestamp])
+        
 
         # here we would also put the logic for the task and call functions from 
         # the app such as trigger reward. will also need to get bools from the app class
@@ -279,8 +274,6 @@ class tracker_app():
         self.correct_trials = 0
         self.arduino_serial = []
         self.opto_running = False
-        self.random_reward = 0
-        self.probability_valve = 1
         
         
         self.possition_array = np.zeros((50,2),dtype=int)
@@ -315,8 +308,6 @@ class tracker_app():
         self.gui.arduino.solinoid_2_button.configure(command=lambda: self.trigger_reward(port=2))
         self.gui.arduino.solinoid_1_switch.configure(command=lambda: self.open_close_port(port=1))
         self.gui.arduino.solinoid_2_switch.configure(command=lambda: self.open_close_port(port=2))
-        self.gui.arduino.solinoid_3_switch.configure(command=lambda: self.open_close_port(port=3))
-        self.gui.arduino.probility_reward_check.configure(command=self.random_reward_state)
 
         self.gui.inscopix.opto_on_button.configure(command=lambda: self.trigger_opto_on(port=7))
         self.gui.inscopix.opto_off_button.configure(command=lambda: self.trigger_opto_off(port=8))
@@ -465,31 +456,8 @@ class tracker_app():
                   self.arduino_serial.write(b'6')
                   self.gui.arduino.solinoid_2_state_label.configure(text="Closed")
               except: self.cam.log_message("No Connected Arduino")
-        elif port == 3:
-          if self.gui.arduino.solinoid_switch_3_val.get():
-              try: 
-                  self.arduino_serial.write(b'9')
-                  self.gui.arduino.solinoid_3_state_label.configure(text="Open")
-
-              except: self.cam.log_message("No Connected Arduino")
-          else:
-              try: 
-                  self.arduino_serial.write(b'10')
-                  self.gui.arduino.solinoid_3_state_label.configure(text="Closed")
-              except: self.cam.log_message("No Connected Arduino")
-          
-    def set_reward_prob(self):
-        self.probability_valve = random.choice([1, 0])
-        self.cam.probability_value = self.probability_valve 
-        self.gui.arduino.solinoid_switch_3_val.set(self.probability_valve)
-        self.open_close_port(port=3)
-
-    def random_reward_state(self):
-        self.random_reward = self.gui.arduino.probability_reward.get()
-        if self.random_reward:
-            self.cam.log_message("Random reward delivery activated")
-        else:  
-            self.cam.log_message("Random reward delivery deactivated")
+                  
+                   
 
     def select_comport(self,*args):
         self.gui.arduino.serial_port_cb.current()

@@ -9,7 +9,6 @@
 
 int solenoid1       = 12;
 int solenoid2       = 10;
-int solenoid3       = 8;
 int TTL_1           = 2;
 int TTL_2           = 3;
 int TTL_3           = 4;
@@ -31,7 +30,6 @@ void setup() {
 
   pinMode(solenoid1, OUTPUT);
   pinMode(solenoid2, OUTPUT);
-  pinMode(solenoid3, OUTPUT);
   
   pinMode(TTL_1, OUTPUT);
   pinMode(TTL_2, OUTPUT);
@@ -85,25 +83,15 @@ void loop() {
         break;
     }
 
-    if (State == '7') { 
-      digitalWrite(TTL_1, HIGH);
-      break;
-    }
-      
-    if (State == '8') { 
-      digitalWrite(TTL_1, LOW);
-      break;
-    }
-
-    if (State == '9') { 
-      digitalWrite(solenoid3, HIGH);
-      break;
-    }
-    
-    if (State == '10') { 
-      digitalWrite(solenoid3, LOW);
-      break;
-    } 
+      if (State == '7') { 
+        digitalWrite(TTL_1, HIGH);
+        break;
+      }
+        
+      if (State == '8') { 
+        digitalWrite(TTL_1, LOW);
+        break;
+      } 
     }
   }
 
