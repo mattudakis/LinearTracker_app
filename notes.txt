@@ -1,0 +1,3 @@
+self.gui.video.video_canvas.delete(self.gui.video.zones[1].name)
+
+this will delte a rectangle 

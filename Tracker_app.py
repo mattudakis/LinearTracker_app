@@ -203,9 +203,19 @@ class video_stream():
                            
             if app.session_running:
                 if isinstance(occupied_zone,RewardZone) and occupied_zone.isactive:
-                    app.trigger_reward(occupied_zone.rewardport)
                     if app.random_reward:
+                        print(self.probability_value)
+                        if self.probability_value == 0:
+                            if occupied_zone.rewardport == 1:
+                                app.trigger_reward(9)
+                            else: app.trigger_reward(0)
+                        else:
+                            app.trigger_reward(occupied_zone.rewardport)
                         app.set_reward_prob()
+
+                    else: 
+                        app.trigger_reward(occupied_zone.rewardport)
+                 
                     # activate the other reward zones
                     for zone in other_zones:
                         if isinstance(zone,RewardZone):
@@ -468,13 +478,13 @@ class tracker_app():
         elif port == 3:
           if self.gui.arduino.solinoid_switch_3_val.get():
               try: 
-                  self.arduino_serial.write(b'9')
+                  self.arduino_serial.write(b'7')
                   self.gui.arduino.solinoid_3_state_label.configure(text="Open")
 
               except: self.cam.log_message("No Connected Arduino")
           else:
               try: 
-                  self.arduino_serial.write(b'10')
+                  self.arduino_serial.write(b'8')
                   self.gui.arduino.solinoid_3_state_label.configure(text="Closed")
               except: self.cam.log_message("No Connected Arduino")
           
@@ -482,7 +492,7 @@ class tracker_app():
         self.probability_valve = random.choice([1, 0])
         self.cam.probability_value = self.probability_valve 
         self.gui.arduino.solinoid_switch_3_val.set(self.probability_valve)
-        self.open_close_port(port=3)
+        #self.open_close_port(port=3)
 
     def random_reward_state(self):
         self.random_reward = self.gui.arduino.probability_reward.get()
